@@ -48,11 +48,17 @@ Copia `AlertaYA.Api/appsettings.Example.json` → `AlertaYA.Api/appsettings.json
 | Variable | Descripción |
 |---|---|
 | `ConnectionStrings__Default` | Connection string de PostgreSQL (Supabase, con SSL) |
-| `Jwt__SigningKey` | JWT Secret de Supabase (dashboard → Authentication) |
-| `Jwt__Issuer` | `https://<project-ref>.supabase.co/auth/v1` |
+| `Jwt__Authority` | `https://<project-ref>.supabase.co/auth/v1` — el backend descarga las claves públicas (JWKS) desde acá y valida la firma asimétrica sin guardar secretos |
+| `Jwt__SigningKey` | Solo si el proyecto usa el JWT Secret legacy (HS256) |
+| `Jwt__Issuer` | `https://<project-ref>.supabase.co/auth/v1` (igual que Authority) |
 | `Jwt__Audience` | `authenticated` (default) |
 | `SmsFallback__Secret` | Secreto compartido para el hash del fallback SMS |
 | `SmsFallback__MaxAgeSeconds` | Antigüedad máxima del payload SMS (anti-replay), default `300` |
+
+#### Dónde encontrarlas en el panel de Supabase (UI 2025+)
+
+- **Connection string**: en la página de tu proyecto, botón **Connect** (arriba a la derecha) → pestaña de framework/URI. La contraseña de postgres está bajo **Project Settings → Database** (botón para revelarla).
+- **Credenciales de Auth (JWT)**: ahora viven en **Authentication → JWT Keys** (ruta directa: `/project/<ref>/auth/jwt`), ya NO en Project Settings → API. Los proyectos creados desde mayo 2025 usan claves **asimétricas (RS256)** por defecto; el JWT Secret legacy HS256 está en la sección "Legacy JWT secret" de esa misma página. Con `Jwt__Authority` configurado, el backend valida las claves asimétricas automáticamente.
 
 ---
 

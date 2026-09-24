@@ -44,9 +44,19 @@ builder.Services
             ClockSkew = TimeSpan.FromSeconds(30),
         };
 
-        // Supabase firma los JWT en HS256 con su JWT Secret (Jwt:SigningKey).
-        // Si no hay clave configurada, no se exige firma y el arranque no falla (útil en desarrollo);
-        // la validación real de firma se activa apenas la clave se configure.
+        // Los proyectos de Supabase nuevos (desde mayo 2025) firman los JWT de usuario con claves
+        // asimétricas (RS256/ES256). Si está configurado Jwt:Authority, JwtBearer descarga la metadata
+        // OIDC y las claves públicas (JWKS) de https://<ref>.supabase.co/auth/v1/.well-known/jwks.json
+        // y valida la firma sin necesidad de guardar secretos. Esto también permite rotar/revocar claves
+        // sin redeployar el backend.
+        if (!string.IsNullOrEmpty(jwt.Authority))
+        {
+            options.Authority = jwt.Authority;
+            options.MetadataAddress = $"{jwt.Authority.TrimEnd('/')}/.well-known/openid-configuration";
+        }
+
+        // Soporte legacy: proyectos antiguos firmaban en HS256 con el JWT Secret. Se conserva por
+        // compatibilidad; se refuerza la firma apenas la clave esté configurada.
         if (!string.IsNullOrEmpty(jwt.SigningKey))
         {
             validaciones.ValidateIssuerSigningKey = true;

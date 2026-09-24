@@ -31,6 +31,7 @@ public class AppDbContext : DbContext
         {
             e.ToTable("profiles");
             e.HasKey(p => p.Id);
+            e.Property(p => p.Id).HasColumnName("id");
             e.Property(p => p.Nombre).HasColumnName("nombre").IsRequired();
             e.Property(p => p.Telefono).HasColumnName("telefono").IsRequired();
             e.Property(p => p.Correo).HasColumnName("correo");
@@ -44,6 +45,7 @@ public class AppDbContext : DbContext
         {
             e.ToTable("emergency_contacts");
             e.HasKey(c => c.Id);
+            e.Property(c => c.Id).HasColumnName("id");
             e.Property(c => c.UserId).HasColumnName("user_id").IsRequired();
             e.Property(c => c.Nombre).HasColumnName("nombre").IsRequired();
             e.Property(c => c.Telefono).HasColumnName("telefono").IsRequired();
@@ -62,6 +64,7 @@ public class AppDbContext : DbContext
         {
             e.ToTable("alerts");
             e.HasKey(a => a.Id);
+            e.Property(a => a.Id).HasColumnName("id");
             e.Property(a => a.UserId).HasColumnName("user_id").IsRequired();
             e.Property(a => a.Estado).HasColumnName("estado").IsRequired();
             e.Property(a => a.CanalActivacion).HasColumnName("canal_activacion").IsRequired();
@@ -90,6 +93,7 @@ public class AppDbContext : DbContext
         {
             e.ToTable("alert_locations");
             e.HasKey(l => l.Id);
+            e.Property(l => l.Id).HasColumnName("id");
             e.Property(l => l.AlertId).HasColumnName("alert_id").IsRequired();
             e.Property(l => l.Ubicacion)
                 .HasColumnName("ubicacion")
@@ -112,6 +116,7 @@ public class AppDbContext : DbContext
         {
             e.ToTable("verification_logs");
             e.HasKey(v => v.Id);
+            e.Property(v => v.Id).HasColumnName("id");
             e.Property(v => v.AlertId).HasColumnName("alert_id").IsRequired();
             e.Property(v => v.MovimientoScore)
                 .HasColumnName("movimiento_score")
