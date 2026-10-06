@@ -2,3 +2,11 @@
 .DS_Store
 .env
 .env*.local
+
+# .NET build output
+bin/
+obj/
+.vs/
+
+# CodeGraph index (local)
+.codegraph/
