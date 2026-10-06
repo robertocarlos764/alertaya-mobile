@@ -105,12 +105,49 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 6 | Pending |
+| AUTH-04 | Phase 6 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| CONT-01 | Phase 1 | Pending |
+| CONT-02 | Phase 6 | Pending |
+| SOS-01 | Phase 1 | Pending |
+| SOS-02 | Phase 1 | Pending |
+| SOS-03 | Phase 1 | Pending |
+| SOS-04 | Phase 1 | Pending |
+| SOS-05 | Phase 5 | Pending |
+| SOS-06 | Phase 3 | Pending |
+| NOTI-01 | Phase 1 | Pending |
+| NOTI-02 | Phase 6 | Pending |
+| NOTI-03 | Phase 1 | Pending |
+| NOTI-04 | Phase 1 | Pending |
+| UBIC-01 | Phase 2 | Pending |
+| UBIC-02 | Phase 1 | Pending |
+| UBIC-03 | Phase 3 | Pending |
+| ACTV-01 | Phase 2 | Pending |
+| ACTV-02 | Phase 2 | Pending |
+| ACTV-03 | Phase 7 | Pending |
+| ACTV-04 | Phase 7 | Pending |
+| ACTV-05 | Phase 2 | Pending |
+| IA-01 | Phase 7 | Pending |
+| IA-02 | Phase 7 | Pending |
+| IA-03 | Phase 4 | Pending |
+| IA-04 | Phase 4 | Pending |
+| PANEL-01 | Phase 4 | Pending |
+| PANEL-02 | Phase 4 | Pending |
+| PANEL-03 | Phase 4 | Pending |
+| PANEL-04 | Phase 5 | Pending |
+| EMRG-01 | Phase 5 | Pending |
+| HIST-01 | Phase 3 | Pending |
+| HIST-02 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 37 total
-- Mapped to phases: 0
-- Unmapped: 37 ⚠️
+- Mapped to phases: 37
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-10-06*
-*Last updated: 2026-10-06 after initial definition*
+*Last updated: 2026-10-06 after roadmap creation*
