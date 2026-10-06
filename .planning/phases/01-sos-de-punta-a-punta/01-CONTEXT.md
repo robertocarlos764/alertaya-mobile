@@ -24,7 +24,7 @@ Fuera de esta fase: activadores manos libres y tracking en segundo plano real (f
 - **D-04:** Al llegar a 0 navega **directo a la pantalla de alerta activa** (sin pantalla de confirmación "enviada": la veracidad la dan los estados por contacto).
 
 ### SMS y link de seguimiento
-- **D-05:** Texto del SMS directo y urgente, auto-identificado (el remitente llega como número desconocido), sin tildes para caber en un segmento GSM-7: `AlertaYA: <Nombre> activo una alerta de emergencia. Ubicacion en vivo: <link>. Si no responde, llama al 123.` En Twilio trial el proveedor antepone "Sent from your Twilio trial account" — aceptado para la demo.
+- **D-05:** Texto del SMS directo y urgente, auto-identificado (el remitente llega como número desconocido), sin tildes (GSM-7): `AlertaYA: <Nombre> activo una alerta de emergencia. Ubicacion en vivo: <link>. Si no responde, llama al 123.` En Twilio trial el proveedor antepone "Sent from your Twilio trial account" — aceptado para la demo. *(Ajustado 2026-10-06, ver D-19: se aceptan 2 segmentos.)*
 - **D-06:** La página pública del link muestra: **mapa en vivo** (pin con última ubicación, círculo de precisión, "hace X s"), **nombre de la persona y estado** de la alerta (activa / finalizada), **botones** llamar a la persona, llamar al 123 y abrir en Google Maps, y el **trayecto** desde el inicio de la alerta. Sin GPS muestra "ubicación pendiente", nunca una coordenada sustituta.
 - **D-07:** El link deja de mostrar ubicación **1 h después de finalizada la alerta**; luego muestra "alerta finalizada" sin datos de ubicación. Token opaco no adivinable, revocable.
 - **D-08:** El link se sirve desde un **subdominio gratuito** (p. ej. Vercel) para la demo.
@@ -38,9 +38,15 @@ Fuera de esta fase: activadores manos libres y tracking en segundo plano real (f
 ### Entorno de la demo — presupuesto cero
 - **D-13:** **No hay presupuesto**: todo debe ser gratuito. Restricción que aplica a todo el proyecto.
 - **D-14:** SMS con **Twilio trial** (crédito gratis, DLR por webhook de estado, solo a números verificados). Se verifican el número de Roberto y 1–2 más (idealmente de operadores distintos: Claro/Movistar/Tigo). El acceso al proveedor va detrás de un puerto (`ISmsSender`) para poder cambiarlo sin tocar el dominio. — **Reversibility:** reversible — detrás de interfaz.
-- **D-15:** API .NET corre en la **PC de Roberto expuesta con Cloudflare Tunnel** (HTTPS público gratis; la PC debe estar prendida en la demo). Azure F1 descartado porque se duerme y mata los workers.
+- **D-15:** API .NET corre en la **PC de Roberto expuesta con un túnel HTTPS de hostname fijo** — *reemplazado por D-18* (HTTPS público gratis; la PC debe estar prendida en la demo). Azure F1 descartado porque se duerme y mata los workers.
 - **D-16:** Página del link (y luego el panel) en **Vercel plan gratuito**; BD y Auth en el **Supabase gratuito** existente (`vzyasmeeyvbkpoiosses`).
-- **D-17:** Android **development build compilado localmente** (Gradle/Android Studio), no EAS de pago. Pruebas y demo en el **teléfono Android personal de Roberto**.
+- **D-17:** Android **development build compilado localmente** (Gradle/Android Studio), no EAS de pago. *(Ampliado por D-21: además un APK release para la demo.)* Pruebas y demo en el **teléfono Android personal de Roberto**.
+
+### Decisiones tras la investigación (2026-10-06)
+- **D-18:** El API se expone con **ngrok y dominio estático gratuito** (un dominio fijo por cuenta). Reemplaza a Cloudflare Tunnel en D-15 porque el Quick Tunnel cambia de URL al reiniciar y el túnel con nombre exige dominio propio. La URL pública fija va en el APK, en Vercel y en el `StatusCallback` de Twilio, y es la que valida la firma del webhook.
+- **D-19:** El SMS de alerta **acepta 2 segmentos**: texto completo con el nombre sin truncar y link de 128 bits; el costo por SMS se duplica. El texto sigue en GSM-7, sin tildes.
+- **D-20:** El nombre y el teléfono del perfil se llenan con una **migración versionada del trigger `handle_new_user`** que copia la metadata del `signUp`; no se hace PATCH desde la app. Se aplica al remoto solo con confirmación de Roberto.
+- **D-21:** Builds: **development build** para desarrollar y **APK release** firmado localmente para la demo del 2026-10-15, sin depender de Metro ni del PC para el bundle JS.
 
 ### Claude's Discretion
 - Redacción exacta del SMS de "a salvo" y textos de UI dentro del tono definido.
