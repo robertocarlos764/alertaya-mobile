@@ -37,13 +37,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. La pantalla de alerta activa muestra por contacto el estado real (en cola, enviado, entregado, fallido); "entregado" aparece solo tras la confirmación de Twilio, y con el worker apagado la app no dice "enviado"
   5. Si el SOS se dispara sin red o el API se reinicia a mitad del envío, al volver la conexión la alerta y sus SMS se completan sin duplicarse (una sola alerta en el servidor, un SMS por contacto)
 
-**Plans:** 16 plans (9 waves)
+**Plans:** 1/16 plans executed (9 waves)
 
 Plans:
 **Wave 1**
 
 - [ ] 01-01-PLAN.md — API público por ngrok (dominio fijo), spike de Twilio en Colombia y herramientas de administrador (W1)
-- [ ] 01-02-PLAN.md — Decisiones del día 1: applicationId, destino de sms-fallback y legitimidad de paquetes (W1)
+- [x] 01-02-PLAN.md — Decisiones del día 1: applicationId, destino de sms-fallback y legitimidad de paquetes (W1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -196,7 +196,7 @@ Fases 1 a 4: alcance del demo del 2026-10-15. Fases 5 a 7: después del demo.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. SOS de punta a punta | 0/16 | Planned | - |
+| 1. SOS de punta a punta | 1/16 | In Progress|  |
 | 2. Protección manos libres y tracking en segundo plano | 0/TBD | Not started | - |
 | 3. Historial, ajustes y modo silencioso | 0/TBD | Not started | - |
 | 4. Panel policial mínimo e IA mínima | 0/TBD | Not started | - |
