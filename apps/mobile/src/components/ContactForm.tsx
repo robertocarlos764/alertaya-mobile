@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Avatar, AppText, Button, Screen, TextField } from '@/components/ui';
+import { Avatar, AppText, Button, Screen, TextField, toast } from '@/components/ui';
 import { normalizePhone } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
 import { colors, radius, space } from '@/theme';
@@ -47,7 +47,7 @@ export function ContactForm({ id }: { id?: string }) {
     const datos = { nombre: nombre.trim(), telefono: tel, relacion };
     if (existente) updateContact({ ...datos, id: existente.id });
     else addContact(datos);
-    ToastAndroid.show(existente ? 'Cambios guardados.' : `${datos.nombre} agregado.`, ToastAndroid.SHORT);
+    toast(existente ? 'Cambios guardados.' : `${datos.nombre} agregado.`);
     router.back();
   };
 

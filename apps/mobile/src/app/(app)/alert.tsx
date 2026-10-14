@@ -1,10 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useState } from 'react';
-import { Animated, Linking, Share, StyleSheet, ToastAndroid, View } from 'react-native';
+import { Animated, Linking, Platform, Share, StyleSheet, View } from 'react-native';
 
 import { HoldButton } from '@/components/HoldButton';
-import { Avatar, AppText, Button, DeliveryStatus, etiquetaEstado, Header, Screen } from '@/components/ui';
+import { Avatar, AppText, Button, DeliveryStatus, etiquetaEstado, Header, Screen, toast } from '@/components/ui';
 import { ago, formatElapsed, formatPhone, headline, simulatedStatus } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
 import { useLocation } from '@/lib/useLocation';
@@ -17,8 +17,8 @@ function PuntoActivo() {
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacidad, { toValue: 0.3, duration: 700, useNativeDriver: true }),
-        Animated.timing(opacidad, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.timing(opacidad, { toValue: 0.3, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(opacidad, { toValue: 1, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
       ]),
     );
     loop.start();
@@ -28,7 +28,7 @@ function PuntoActivo() {
 }
 
 export default function Alerta() {
-  useKeepAwake();
+  useKeepAwake(undefined, { suppressDeactivateWarnings: true });
   const { activeAlert, contacts, setAlertLocation, finishAlert } = useDemo();
   const { fix } = useLocation();
   const [now, setNow] = useState(() => Date.now());
@@ -152,10 +152,7 @@ export default function Alerta() {
           durationMs={3000}
           onComplete={() => {
             finishAlert();
-            ToastAndroid.show(
-              'Demo: alerta finalizada. Estamos avisando a tus contactos que estás a salvo.',
-              ToastAndroid.LONG,
-            );
+            toast('Demo: alerta finalizada. Estamos avisando a tus contactos que estás a salvo.');
           }}
           accessibilityLabel="Estoy a salvo"
           accessibilityHint="Mantén presionado tres segundos para finalizar la alerta"

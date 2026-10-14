@@ -1,10 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { HoldButton } from '@/components/HoldButton';
-import { AppText, Button, Header, Screen } from '@/components/ui';
+import { AppText, Button, Card, Header, Screen, toast } from '@/components/ui';
 import { useDemo } from '@/demo/store';
 import { useLocation, type EstadoUbicacion } from '@/lib/useLocation';
 import { colors, radius, space } from '@/theme';
@@ -25,6 +25,12 @@ export default function Inicio() {
           variant="ring"
           durationMs={2000}
           disabled={sinContactos}
+          onDisabledPress={() =>
+            toast('Agrega al menos un contacto para usar SOS.', {
+              label: 'AGREGAR',
+              onPress: () => router.push('/contacts/new'),
+            })
+          }
           onPressingChange={setPresionando}
           onComplete={() => router.push('/countdown')}
           accessibilityLabel="Botón SOS"
@@ -37,7 +43,7 @@ export default function Inicio() {
               <AppText color={colors.textMuted} style={styles.centerText}>
                 Agrega al menos un contacto para poder usar SOS.
               </AppText>
-              <Button title="Agregar contacto" variant="outline" onPress={() => router.push('/contacts/new')} />
+              <Button title="Agregar contacto" variant="cool" onPress={() => router.push('/contacts/new')} />
             </>
           ) : (
             <AppText color={presionando ? colors.text : colors.textMuted} style={styles.centerText}>
@@ -49,7 +55,7 @@ export default function Inicio() {
 
       <View style={styles.flex} />
 
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <View style={styles.mapIcon}>
           <MaterialIcons name="map" size={24} color={colors.textMuted} />
         </View>
@@ -60,7 +66,7 @@ export default function Inicio() {
           <LineaUbicacion state={state} accuracy={fix?.accuracy ?? null} request={request} />
         </View>
         <MaterialIcons name="my-location" size={24} color={colors.textMuted} />
-      </View>
+      </Card>
 
       <Button title="Cerrar sesión" variant="ghost" onPress={logout} />
     </Screen>
@@ -104,7 +110,12 @@ function LineaUbicacion({
           <Button title="Permitir ubicación" onPress={() => request()} />
         </View>
       ) : null}
-      {state === 'denegado' ? (
+      {state === 'denegado' && Platform.OS === 'web' ? (
+        <AppText variant="meta" color={colors.textMuted} style={styles.action}>
+          Permite la ubicación desde el candado de la barra de direcciones.
+        </AppText>
+      ) : null}
+      {state === 'denegado' && Platform.OS !== 'web' ? (
         <Pressable accessibilityRole="link" onPress={() => Linking.openSettings()} style={styles.link}>
           <AppText color={colors.warning} style={styles.linkText}>
             Abrir ajustes
@@ -124,18 +135,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    padding: space.md,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radius.card,
     marginBottom: space.sm,
   },
   mapIcon: {
     width: 48,
     height: 48,
     borderRadius: radius.row,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
   },

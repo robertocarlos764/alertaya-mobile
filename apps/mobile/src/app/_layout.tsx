@@ -1,17 +1,17 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { DemoBanner } from '@/components/ui';
+import { DemoBanner, SnackbarHost } from '@/components/ui';
 import { DemoProvider, useDemo } from '@/demo/store';
 import { colors } from '@/theme';
 
 function Raiz() {
   const { hydrated, session } = useDemo();
 
-  // Splash mientras se lee SecureStore: evita el parpadeo de login (AUTH-02).
+  // Splash mientras se lee el almacenamiento: evita el parpadeo de login (AUTH-02).
   if (!hydrated) {
     return (
       <View style={styles.splash}>
@@ -32,6 +32,8 @@ function Raiz() {
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
       </Stack>
+      {/* Una sola vez en la raíz: el toast sobrevive a que la pantalla que lo pidió se desmonte. */}
+      <SnackbarHost />
     </View>
   );
 }
@@ -40,13 +42,23 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <DemoProvider>
-        <Raiz />
+        {/* En web la app se ve como una columna de teléfono centrada. */}
+        <View style={styles.outer}>
+          <View style={styles.phone}>
+            <Raiz />
+          </View>
+        </View>
       </DemoProvider>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
+  outer: { flex: 1, backgroundColor: colors.bg },
+  phone: {
+    flex: 1,
+    ...(Platform.OS === 'web' ? { width: '100%', maxWidth: 480, alignSelf: 'center' } : null),
+  },
   root: { flex: 1, backgroundColor: colors.bg },
   splash: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
 });

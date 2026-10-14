@@ -1,6 +1,8 @@
-// Store local del modo demo (L1): sin backend. Todo persiste en SecureStore (Keystore de Android).
+// Store local del modo demo (L1): sin backend. Persiste en SecureStore (Keystore de Android) y, en web,
+// en localStorage (el módulo web de expo-secure-store es un objeto vacío y toda llamada lanza).
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 
 // Hace las veces de `perfil.ventana_confirmacion_segundos` (D-02: la UI no escribe 5 literal).
 export const COUNTDOWN_SECONDS = 5;
@@ -33,9 +35,13 @@ type DemoValue = {
 
 const DemoContext = createContext<DemoValue | null>(null);
 
+// ponytail: en web los datos del demo quedan en texto plano en el navegador del presentador; el producto
+// real usa Supabase/Keystore.
+const esWeb = Platform.OS === 'web';
+
 async function leer<T>(key: string): Promise<T | null> {
   try {
-    const raw = await SecureStore.getItemAsync(key);
+    const raw = esWeb ? localStorage.getItem(key) : await SecureStore.getItemAsync(key);
     return raw ? (JSON.parse(raw) as T) : null; // dato corrupto -> null
   } catch {
     return null;
@@ -43,8 +49,17 @@ async function leer<T>(key: string): Promise<T | null> {
 }
 
 function guardar(key: string, value: unknown) {
-  const op = value == null ? SecureStore.deleteItemAsync(key) : SecureStore.setItemAsync(key, JSON.stringify(value));
-  op.catch(() => {}); // demo: si falla la escritura, el estado en memoria sigue vigente
+  try {
+    if (esWeb) {
+      if (value == null) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify(value));
+      return;
+    }
+    const op = value == null ? SecureStore.deleteItemAsync(key) : SecureStore.setItemAsync(key, JSON.stringify(value));
+    op.catch(() => {}); // demo: si falla la escritura, el estado en memoria sigue vigente
+  } catch {
+    // demo: sin almacenamiento disponible, el estado en memoria sigue vigente
+  }
 }
 
 const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

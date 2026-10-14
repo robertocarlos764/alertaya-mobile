@@ -1,15 +1,15 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, BackHandler, Pressable, StyleSheet, Text, ToastAndroid, Vibration, View } from 'react-native';
+import { Animated, BackHandler, Platform, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 
-import { AppText, Screen } from '@/components/ui';
+import { AppText, Screen, toast } from '@/components/ui';
 import { COUNTDOWN_SECONDS, useDemo } from '@/demo/store';
 import { useLocation } from '@/lib/useLocation';
-import { colors, radius, space } from '@/theme';
+import { colors, gradients, radius, space } from '@/theme';
 
 export default function Cuenta() {
-  useKeepAwake();
+  useKeepAwake(undefined, { suppressDeactivateWarnings: true });
   const { startAlert } = useDemo();
   const { fix } = useLocation();
   const fixRef = useRef(fix);
@@ -28,7 +28,7 @@ export default function Cuenta() {
     }
     Vibration.vibrate(200);
     pulso.setValue(0);
-    Animated.timing(pulso, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    Animated.timing(pulso, { toValue: 1, duration: 150, useNativeDriver: Platform.OS !== 'web' }).start();
     const t = setTimeout(() => setLeft((n) => n - 1), 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe reaccionar a `left`
@@ -46,11 +46,11 @@ export default function Cuenta() {
   const cancelar = () => {
     Vibration.vibrate(80);
     router.back();
-    ToastAndroid.show('Alerta cancelada. No se envió nada.', ToastAndroid.SHORT);
+    toast('Alerta cancelada. No se envió nada.');
   };
 
   return (
-    <Screen edges={['bottom']} style={styles.screen}>
+    <Screen edges={['bottom']} fondo={gradients.countdown}>
       <View style={styles.center}>
         <AppText variant="label" style={styles.soft}>
           ENVIANDO ALERTA EN
@@ -78,7 +78,6 @@ export default function Cuenta() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: colors.deepRed },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   soft: { opacity: 0.8 },
   numeralBox: { width: 240, height: 240, alignItems: 'center', justifyContent: 'center' },

@@ -1,7 +1,9 @@
-// Componentes base de UI (01-UI-SPEC). Colores/espacios/tipografía solo desde @/theme.
+// Componentes base de UI (01-UI-SPEC). Colores/degradados/espacios/tipografía solo desde @/theme.
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState, type ComponentProps, type ReactNode } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState, type ComponentProps, type ReactNode } from 'react';
 import {
+  AccessibilityInfo,
   ActivityIndicator,
   KeyboardAvoidingView,
   Pressable,
@@ -10,47 +12,118 @@ import {
   Text,
   TextInput,
   View,
+  type PressableProps,
   type StyleProp,
   type TextInputProps,
   type TextProps,
   type ViewStyle,
 } from 'react-native';
+import Reanimated, {
+  FadeInDown,
+  FadeOutDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  ZoomIn,
+} from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
 import { initials, type DeliveryState } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
-import { colors, radius, space, type } from '@/theme';
+import { colors, gradients, radius, space, type } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
+export type Degradado = readonly [string, string, ...string[]];
+
+const APressable = Reanimated.createAnimatedComponent(Pressable);
+
+/** Entradas escalonadas: `entering={entrada(i)}` en un Reanimated.View (L-03). */
+export const entrada = (i: number) => FadeInDown.delay(i * 70).duration(420);
 
 export function Screen({
   children,
   scroll,
   edges = ['bottom'],
   style,
+  fondo = gradients.bg,
 }: {
   children: ReactNode;
   scroll?: boolean;
   edges?: Edge[];
   style?: StyleProp<ViewStyle>;
+  fondo?: Degradado;
 }) {
   // El borde superior lo cubre DemoBanner (montado en el layout raíz).
   return (
-    <SafeAreaView edges={edges} style={[styles.screen, style]}>
-      {scroll ? (
-        <KeyboardAvoidingView behavior="padding" style={styles.flex}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            {children}
-          </ScrollView>
-        </KeyboardAvoidingView>
-      ) : (
-        <View style={styles.body}>{children}</View>
-      )}
-    </SafeAreaView>
+    <LinearGradient colors={fondo} style={styles.flex}>
+      <SafeAreaView edges={edges} style={[styles.screen, style]}>
+        {scroll ? (
+          <KeyboardAvoidingView behavior="padding" style={styles.flex}>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {children}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        ) : (
+          <View style={styles.body}>{children}</View>
+        )}
+      </SafeAreaView>
+    </LinearGradient>
+  );
+}
+
+export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  return (
+    <LinearGradient colors={gradients.card} style={[styles.card, style]}>
+      {children}
+    </LinearGradient>
+  );
+}
+
+/** Pressable que se encoge con resorte al presionar (sin animación si está deshabilitado). */
+export function PressableScale({
+  children,
+  style,
+  disabled,
+  onPressIn,
+  onPressOut,
+  ...rest
+}: Omit<PressableProps, 'style' | 'children'> & { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  const escala = useSharedValue(1);
+  const animado = useAnimatedStyle(() => ({ transform: [{ scale: escala.get() }] }));
+  return (
+    <APressable
+      {...rest}
+      disabled={disabled}
+      onPressIn={(e) => {
+        if (!disabled) escala.set(withSpring(0.95));
+        onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        escala.set(withSpring(1));
+        onPressOut?.(e);
+      }}
+      style={[style, animado]}
+    >
+      {children}
+    </APressable>
+  );
+}
+
+export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={[styles.chip, { borderColor: selected ? colors.cyan : colors.border }]}
+    >
+      {selected ? <LinearGradient colors={gradients.cool} style={StyleSheet.absoluteFill} /> : null}
+      <Text style={styles.chipText}>{label}</Text>
+    </PressableScale>
   );
 }
 
@@ -73,27 +146,41 @@ export function Button({
 }: {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'outline' | 'ghost' | 'cool' | 'danger';
   icon?: IconName;
   loading?: boolean;
   disabled?: boolean;
 }) {
   const inactivo = !!disabled || !!loading;
-  const colorTexto = disabled ? colors.disabled : variant === 'ghost' ? colors.textMuted : colors.text;
+  const degradado = variant === 'primary' ? gradients.primary : variant === 'cool' ? gradients.cool : null;
+  const colorTexto = disabled
+    ? colors.disabled
+    : variant === 'ghost'
+      ? colors.textMuted
+      : variant === 'danger'
+        ? colors.accent
+        : colors.text;
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityState={{ disabled: inactivo, busy: !!loading }}
       disabled={inactivo}
       onPress={onPress}
-      style={({ pressed }) => [
+      style={[
         styles.button,
-        variant === 'primary' && { backgroundColor: colors.accent },
-        variant === 'outline' && { borderColor: colors.border, borderWidth: 1.5 },
+        variant === 'outline' && { borderColor: colors.border, borderWidth: 1.5, backgroundColor: colors.glass },
+        variant === 'danger' && { borderColor: colors.accent, borderWidth: 1.5, backgroundColor: colors.accentSoft },
         disabled && variant !== 'ghost' && { backgroundColor: colors.border, borderWidth: 0 },
-        pressed && { transform: [{ scale: 0.95 }] },
       ]}
     >
+      {degradado && !disabled ? (
+        <LinearGradient
+          colors={degradado}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+      ) : null}
       {loading ? (
         <ActivityIndicator color={colors.text} />
       ) : (
@@ -102,7 +189,7 @@ export function Button({
           <Text style={[styles.buttonText, { color: colorTexto }]}>{title}</Text>
         </View>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -173,7 +260,10 @@ export function TextField({
 
 export function Avatar({ nombre, size = 40 }: { nombre: string; size?: number }) {
   return (
-    <View
+    <LinearGradient
+      colors={gradients.cool}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       style={[styles.avatar, { width: size, height: size, borderRadius: size / 2 }]}
@@ -181,7 +271,7 @@ export function Avatar({ nombre, size = 40 }: { nombre: string; size?: number })
       <Text style={{ color: colors.text, fontWeight: '600', fontSize: size >= 80 ? 28 : 12 }}>
         {initials(nombre)}
       </Text>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -201,28 +291,57 @@ export function Header({ right }: { right?: ReactNode }) {
 }
 
 // Única ruta para pintar un estado de entrega (tabla de 01-UI-SPEC).
-const ESTADOS: Record<DeliveryState, { etiqueta: string; color: string; icono: IconName; linea: string }> = {
-  en_cola: { etiqueta: 'En cola', color: colors.textMuted, icono: 'schedule', linea: 'Esperando red' },
-  enviado: { etiqueta: 'Enviado', color: colors.text, icono: 'check', linea: 'Esperando confirmación de entrega' },
-  entregado: { etiqueta: 'Entregado', color: colors.success, icono: 'done-all', linea: 'Confirmado por el operador' },
-  fallido: { etiqueta: 'Falló', color: colors.accent, icono: 'error-outline', linea: 'No se pudo enviar el SMS' },
+type InfoEstado = { etiqueta: string; color: string; fondo: string; icono: IconName; linea: string };
+const ESTADOS: Record<DeliveryState, InfoEstado> = {
+  en_cola: {
+    etiqueta: 'En cola',
+    color: colors.textMuted,
+    fondo: colors.glass,
+    icono: 'schedule',
+    linea: 'Esperando red',
+  },
+  enviado: {
+    etiqueta: 'Enviado',
+    color: colors.cyan,
+    fondo: colors.violetSoft,
+    icono: 'check',
+    linea: 'Esperando confirmación de entrega',
+  },
+  entregado: {
+    etiqueta: 'Entregado',
+    color: colors.success,
+    fondo: colors.successSoft,
+    icono: 'done-all',
+    linea: 'Confirmado por el operador',
+  },
+  fallido: {
+    etiqueta: 'Falló',
+    color: colors.accent,
+    fondo: colors.accentSoft,
+    icono: 'error-outline',
+    linea: 'No se pudo enviar el SMS',
+  },
 };
 
 export const etiquetaEstado = (state: DeliveryState) => ESTADOS[state].etiqueta;
+export const infoEstado = (state: DeliveryState) => ESTADOS[state];
 
 export function DeliveryStatus({ state }: { state: DeliveryState }) {
   const e = ESTADOS[state];
   return (
-    <View style={styles.status}>
-      <View style={styles.row}>
-        <MaterialIcons name={e.icono} size={20} color={e.color} />
-        <AppText variant="label" color={e.color} style={styles.statusLabel}>
-          {e.etiqueta}
+    <View style={[styles.status, { backgroundColor: e.fondo }]}>
+      {/* key = estado: cada cambio de estado vuelve a montar el contenido y "salta". */}
+      <Reanimated.View key={state} entering={ZoomIn.springify()} style={styles.statusInner}>
+        <View style={styles.row}>
+          <MaterialIcons name={e.icono} size={20} color={e.color} />
+          <AppText variant="label" color={e.color} style={styles.statusLabel}>
+            {e.etiqueta}
+          </AppText>
+        </View>
+        <AppText variant="meta" color={colors.textMuted} style={styles.statusLine}>
+          {e.linea}
         </AppText>
-      </View>
-      <AppText variant="meta" color={colors.textMuted} style={styles.statusLine}>
-        {e.linea}
-      </AppText>
+      </Reanimated.View>
     </View>
   );
 }
@@ -241,9 +360,68 @@ export function DemoBanner() {
   );
 }
 
+// Snackbar (01-UI-SPEC: un solo mensaje, 4000 ms). Vive en la raíz: sobrevive a la pantalla que lo pidió.
+type ToastData = { id: number; texto: string; accion?: { label: string; onPress: () => void } };
+let mostrarToast: ((t: ToastData) => void) | null = null;
+let toastSeq = 0;
+
+/** Sin <SnackbarHost /> montado no hace nada. Un mensaje nuevo reemplaza al anterior. */
+export function toast(texto: string, accion?: ToastData['accion']) {
+  mostrarToast?.({ id: ++toastSeq, texto, accion });
+}
+
+export function SnackbarHost() {
+  const insets = useSafeAreaInsets();
+  const [actual, setActual] = useState<ToastData | null>(null);
+
+  useEffect(() => {
+    mostrarToast = setActual;
+    return () => {
+      mostrarToast = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!actual) return;
+    AccessibilityInfo.announceForAccessibility(actual.texto);
+    const t = setTimeout(() => setActual((v) => (v?.id === actual.id ? null : v)), 4000);
+    return () => clearTimeout(t);
+  }, [actual]);
+
+  return (
+    <View style={[styles.snackHost, { bottom: insets.bottom + 88 }]}>
+      {actual ? (
+        <Reanimated.View
+          key={actual.id}
+          entering={FadeInDown}
+          exiting={FadeOutDown}
+          accessibilityLiveRegion="polite"
+          style={styles.snack}
+        >
+          <AppText style={styles.snackText}>{actual.texto}</AppText>
+          {actual.accion ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                actual.accion?.onPress();
+                setActual(null);
+              }}
+              style={styles.snackAction}
+            >
+              <AppText color={colors.cyan} style={styles.snackActionText}>
+                {actual.accion.label.toUpperCase()}
+              </AppText>
+            </Pressable>
+          ) : null}
+        </Reanimated.View>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  screen: { flex: 1, backgroundColor: colors.bg },
+  screen: { flex: 1, backgroundColor: 'transparent' },
   body: { flex: 1, padding: space.lg },
   scrollContent: { padding: space.lg, flexGrow: 1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
@@ -253,8 +431,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.md,
+    overflow: 'hidden',
   },
   buttonText: { fontSize: 16, fontWeight: '600' },
+  card: {
+    padding: space.md,
+    borderRadius: radius.card,
+    borderColor: colors.border,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  chip: {
+    height: 40,
+    paddingHorizontal: space.md,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  chipText: { color: colors.text, fontSize: 16 },
   field: { marginBottom: space.md },
   fieldLabel: { marginBottom: space.sm },
   input: {
@@ -269,12 +465,27 @@ const styles = StyleSheet.create({
   inputText: { flex: 1, color: colors.text, fontSize: 16, height: '100%' },
   eye: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', marginRight: -space.md },
   errorRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs, marginTop: space.xs },
-  avatar: { backgroundColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  avatar: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.md },
   brand: { fontWeight: '600' },
-  status: { alignItems: 'flex-end', maxWidth: 160 },
+  status: { maxWidth: 160, borderRadius: radius.row, paddingHorizontal: space.sm, paddingVertical: space.xs },
+  statusInner: { alignItems: 'flex-end' },
   statusLabel: { textTransform: 'none', fontSize: 12 },
   statusLine: { textAlign: 'right' },
-  banner: { backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.warning },
+  banner: { backgroundColor: colors.warningSoft, borderBottomWidth: 1, borderBottomColor: colors.warning },
   bannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.xs, paddingVertical: 6 },
+  snackHost: { position: 'absolute', left: space.md, right: space.md, pointerEvents: 'box-none' },
+  snack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    padding: space.md,
+    borderRadius: radius.row,
+    backgroundColor: colors.surfaceHi,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  snackText: { flex: 1 },
+  snackAction: { minHeight: 48, justifyContent: 'center' },
+  snackActionText: { fontWeight: '600' },
 });
