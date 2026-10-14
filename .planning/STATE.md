@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-06)
 Phase: 01 (SOS de punta a punta) — EXECUTING
 Plan: 1 of 16
 Status: Executing Phase 01
-Last activity: 2026-10-07 — Phase 01 execution started
+Last activity: 2026-10-14 - Completed quick task 261014-hhf: prototipo demo de la app movil (Expo Go)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -77,6 +77,12 @@ None yet.
 - [Fase 2]: Fiabilidad de Headless JS desde proceso frío y matrices OEM (Samsung/Xiaomi) sin verificar; spike de día 1
 - [Fase 3/7]: HIST-02 pide que la palabra clave persista entre dispositivos y nunca esté en texto plano; con solo hash no se puede usar para reconocer en el teléfono. Decidir en discuss de la Fase 7 (cifrado reversible vs. solo en el dispositivo)
 - [Calendario]: 4 fases en ~7 días hábiles hasta el demo; si se aprieta, la Fase 3 es la más recortable
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 261014-hhf | Prototipo demo de la app móvil (Expo Go, modo demo, sin backend; no completa 01-11..01-15) | 2026-10-14 | 8ad1ec4 | [261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m](./quick/261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m/) |
 - [Plataforma]: .NET 8 pierde soporte el 2026-11-10 (PLAT-V2-01 en v2)
 
 ## Deferred Items
