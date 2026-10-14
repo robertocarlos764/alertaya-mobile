@@ -1,15 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useKeepAwake } from 'expo-keep-awake';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Share, StyleSheet, View } from 'react-native';
-import Reanimated, {
-  FadeIn,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import Reanimated, { FadeIn } from 'react-native-reanimated';
 
 import { HoldButton } from '@/components/HoldButton';
 import {
@@ -21,33 +15,16 @@ import {
   entrada,
   etiquetaEstado,
   Header,
+  PuntoActivo,
   Screen,
   toast,
 } from '@/components/ui';
-import { ago, formatElapsed, formatPhone, headline, simulatedStatus } from '@/demo/logic';
+import { ago, deliveryRows, formatElapsed, formatPhone, headline, mapsUrl } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
 import { useLocation } from '@/lib/useLocation';
 import { colors, space } from '@/theme';
 
 const DOS_MIN = 2 * 60 * 1000;
-
-// Punto fijo con un halo que crece y se desvanece.
-function PuntoActivo() {
-  const halo = useSharedValue(0);
-  useEffect(() => {
-    halo.set(withRepeat(withTiming(1, { duration: 1400 }), -1, false));
-  }, [halo]);
-  const estiloHalo = useAnimatedStyle(() => ({
-    opacity: interpolate(halo.get(), [0, 1], [0.6, 0]),
-    transform: [{ scale: interpolate(halo.get(), [0, 1], [1, 2.2]) }],
-  }));
-  return (
-    <View style={styles.puntoBox}>
-      <Reanimated.View style={[styles.punto, styles.halo, estiloHalo]} />
-      <View style={styles.punto} />
-    </View>
-  );
-}
 
 export default function Alerta() {
   useKeepAwake(undefined, { suppressDeactivateWarnings: true });
@@ -71,7 +48,8 @@ export default function Alerta() {
   const destinatarios = activeAlert.contactIds
     .map((id) => contacts.find((c) => c.id === id))
     .filter((c) => c !== undefined);
-  const filas = destinatarios.map((c, i) => ({ c, estado: simulatedStatus(i, c.telefono, elapsed) }));
+  // Misma función que usa el store para el snapshot del historial: lo que ves es lo que se guarda.
+  const filas = deliveryRows(destinatarios, elapsed);
   const titular = headline(filas.map((f) => f.estado));
   const location = activeAlert.location;
   const vieja = location ? now - location.at > DOS_MIN : false;
@@ -79,7 +57,7 @@ export default function Alerta() {
   const compartir = () => {
     if (!location) return;
     const precision = location.accuracy == null ? '' : ` (±${location.accuracy} m)`;
-    const enlace = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`;
+    const enlace = mapsUrl(location.lat, location.lon);
     Share.share({ message: `Esta es mi ubicación${precision}: ${enlace}` }).catch(() => {
       // Navegador sin navigator.share: se abre el enlace de Google Maps.
       Linking.openURL(enlace);
@@ -147,12 +125,12 @@ export default function Alerta() {
       <AppText variant="label" color={colors.textMuted} style={styles.seccion}>
         CONTACTOS
       </AppText>
-      {filas.map(({ c, estado }, i) => (
+      {filas.map((c, i) => (
         <Reanimated.View key={c.id} entering={entrada(3 + i)} style={styles.contacto}>
           <Card>
             <View
               accessible
-              accessibilityLabel={`${c.nombre}, ${etiquetaEstado(estado)}`}
+              accessibilityLabel={`${c.nombre}, ${etiquetaEstado(c.estado)}`}
               style={styles.contactoFila}
             >
               <Avatar nombre={c.nombre} size={40} />
@@ -164,9 +142,9 @@ export default function Alerta() {
                   {formatPhone(c.telefono)}
                 </AppText>
               </View>
-              <DeliveryStatus state={estado} />
+              <DeliveryStatus state={c.estado} />
             </View>
-            {estado === 'fallido' ? (
+            {c.estado === 'fallido' ? (
               <View style={styles.llamar}>
                 <Button
                   title={`Llamar a ${c.nombre}`}
@@ -181,6 +159,10 @@ export default function Alerta() {
       ))}
 
       <Reanimated.View entering={entrada(4 + filas.length)}>
+        <View style={styles.bloque}>
+          <Button title="Ver lo que ven tus contactos" variant="cool" icon="visibility" onPress={() => router.push('/tracking')} />
+        </View>
+
         <View style={styles.bloque}>
           <Button title="Compartir ubicación" variant="outline" icon="share" disabled={!location} onPress={compartir} />
         </View>
@@ -220,9 +202,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.accentSoft,
   },
-  puntoBox: { width: 8, height: 8, alignItems: 'center', justifyContent: 'center' },
-  punto: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent },
-  halo: { position: 'absolute' },
   reloj: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
   subtitulo: { marginTop: space.xs },
   seccion: { marginTop: space.lg, marginBottom: space.sm },

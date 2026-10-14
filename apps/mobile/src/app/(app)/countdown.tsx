@@ -12,26 +12,28 @@ import Reanimated, {
 } from 'react-native-reanimated';
 
 import { AppText, PressableScale, Screen, toast } from '@/components/ui';
-import { COUNTDOWN_SECONDS, useDemo } from '@/demo/store';
+import { useDemo } from '@/demo/store';
 import { useLocation } from '@/lib/useLocation';
 import { colors, gradients, radius, space } from '@/theme';
 
 export default function Cuenta() {
   useKeepAwake(undefined, { suppressDeactivateWarnings: true });
-  const { startAlert } = useDemo();
+  const { startAlert, settings } = useDemo();
+  // Modo silencioso: sin vibración, pantalla oscura y discreta, sin capa pulsante ni anillo.
+  const { silencioso } = settings;
   const { fix } = useLocation();
   const fixRef = useRef(fix);
   useEffect(() => {
     fixRef.current = fix;
   }, [fix]);
-  const [left, setLeft] = useState(COUNTDOWN_SECONDS);
+  const [left, setLeft] = useState(settings.countdownSeconds);
 
   // Fondo pulsante y anillo que se reinicia en cada segundo (L-03).
   const latido = useSharedValue(0.1);
   const anillo = useSharedValue(0);
   useEffect(() => {
-    latido.set(withRepeat(withTiming(0.35, { duration: 500 }), -1, true));
-  }, [latido]);
+    if (!silencioso) latido.set(withRepeat(withTiming(0.35, { duration: 500 }), -1, true));
+  }, [latido, silencioso]);
   const estiloLatido = useAnimatedStyle(() => ({ opacity: latido.get() }));
   const estiloAnillo = useAnimatedStyle(() => ({
     opacity: interpolate(anillo.get(), [0, 1], [0.7, 0]),
@@ -45,9 +47,11 @@ export default function Cuenta() {
       startAlert(fixRef.current);
       return;
     }
-    Vibration.vibrate(200);
-    anillo.set(0);
-    anillo.set(withTiming(1, { duration: 900 }));
+    if (!silencioso) {
+      Vibration.vibrate(200);
+      anillo.set(0);
+      anillo.set(withTiming(1, { duration: 900 }));
+    }
     const t = setTimeout(() => setLeft((n) => n - 1), 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe reaccionar a `left`
@@ -60,21 +64,25 @@ export default function Cuenta() {
   }, []);
 
   const cancelar = () => {
-    Vibration.vibrate(80);
+    if (!silencioso) Vibration.vibrate(80);
     router.back();
     toast('Alerta cancelada. No se envió nada.');
   };
 
   return (
-    <Screen edges={['bottom']} fondo={gradients.countdown}>
-      <Reanimated.View style={[styles.latido, estiloLatido]} />
+    <Screen edges={['bottom']} fondo={silencioso ? gradients.quiet : gradients.countdown}>
+      {silencioso ? null : <Reanimated.View style={[styles.latido, estiloLatido]} />}
       <View style={styles.center}>
         <AppText variant="label" style={styles.soft}>
-          ENVIANDO ALERTA EN
+          {silencioso ? 'ALERTA SILENCIOSA EN' : 'ENVIANDO ALERTA EN'}
         </AppText>
         <View style={styles.numeralBox}>
-          <Reanimated.View style={[styles.anillo, estiloAnillo]} />
-          <Reanimated.Text key={left} entering={ZoomIn.springify()} style={styles.numeral}>
+          {silencioso ? null : <Reanimated.View style={[styles.anillo, estiloAnillo]} />}
+          <Reanimated.Text
+            key={left}
+            entering={ZoomIn.springify()}
+            style={[styles.numeral, silencioso && styles.numeralSilencioso]}
+          >
             {Math.max(left, 1)}
           </Reanimated.Text>
         </View>
@@ -82,8 +90,13 @@ export default function Cuenta() {
         <AppText style={[styles.soft, styles.info]}>Tus contactos recibirán un SMS con tu ubicación.</AppText>
       </View>
 
-      <PressableScale accessibilityRole="button" accessibilityLabel="Cancelar alerta" onPress={cancelar} style={styles.cancel}>
-        <Text style={styles.cancelText}>CANCELAR</Text>
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel="Cancelar alerta"
+        onPress={cancelar}
+        style={[styles.cancel, silencioso && styles.cancelSilencioso]}
+      >
+        <Text style={[styles.cancelText, silencioso && styles.cancelTextSilencioso]}>CANCELAR</Text>
       </PressableScale>
     </Screen>
   );
@@ -103,6 +116,7 @@ const styles = StyleSheet.create({
     borderColor: colors.text,
   },
   numeral: { color: colors.text, fontSize: 160, fontWeight: '600', lineHeight: 190, textAlign: 'center' },
+  numeralSilencioso: { color: colors.textMuted, fontSize: 96, lineHeight: 114 },
   info: { marginTop: space.lg, textAlign: 'center' },
   cancel: {
     height: 72,
@@ -111,5 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cancelSilencioso: { backgroundColor: 'transparent', borderColor: colors.border, borderWidth: 1.5 },
   cancelText: { color: colors.deepRed, fontSize: 24, fontWeight: '600' },
+  cancelTextSilencioso: { color: colors.textMuted },
 });

@@ -13,6 +13,7 @@ export default function AppLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="contacts/new" />
         <Stack.Screen name="contacts/[id]" />
+        <Stack.Screen name="history/[id]" />
         <Stack.Screen
           name="countdown"
           options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }}
@@ -20,6 +21,7 @@ export default function AppLayout() {
       </Stack.Protected>
       <Stack.Protected guard={!!activeAlert}>
         <Stack.Screen name="alert" />
+        <Stack.Screen name="tracking" />
       </Stack.Protected>
     </Stack>
   );

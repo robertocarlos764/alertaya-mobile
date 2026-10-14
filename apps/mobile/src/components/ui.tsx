@@ -22,6 +22,7 @@ import Reanimated, {
   cancelAnimation,
   FadeInDown,
   FadeOutDown,
+  interpolate,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -167,6 +168,25 @@ export function Logo({
       >
         <MaterialIcons name={icon} size={size * 0.5} color={colors.text} />
       </LinearGradient>
+    </View>
+  );
+}
+
+// Punto fijo con un halo que crece y se desvanece (alerta ACTIVA).
+export function PuntoActivo() {
+  const halo = useSharedValue(0);
+  useEffect(() => {
+    halo.set(withRepeat(withTiming(1, { duration: 1400 }), -1, false));
+    return () => cancelAnimation(halo);
+  }, [halo]);
+  const estiloHalo = useAnimatedStyle(() => ({
+    opacity: interpolate(halo.get(), [0, 1], [0.6, 0]),
+    transform: [{ scale: interpolate(halo.get(), [0, 1], [1, 2.2]) }],
+  }));
+  return (
+    <View style={styles.puntoBox}>
+      <Reanimated.View style={[styles.punto, styles.halo, estiloHalo]} />
+      <View style={styles.punto} />
     </View>
   );
 }
@@ -499,6 +519,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: 'hidden',
   },
+  puntoBox: { width: 8, height: 8, alignItems: 'center', justifyContent: 'center' },
+  punto: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent },
+  halo: { position: 'absolute' },
   chip: {
     height: 40,
     paddingHorizontal: space.md,

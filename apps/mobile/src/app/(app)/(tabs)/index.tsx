@@ -11,7 +11,7 @@ import { useLocation, type EstadoUbicacion } from '@/lib/useLocation';
 import { colors, radius, space } from '@/theme';
 
 export default function Inicio() {
-  const { contacts, logout } = useDemo();
+  const { contacts } = useDemo();
   const { state, fix, request } = useLocation();
   const [presionando, setPresionando] = useState(false);
   const sinContactos = contacts.length === 0;
@@ -72,8 +72,6 @@ export default function Inicio() {
         <MaterialIcons name="my-location" size={24} color={colors.textMuted} />
       </Card>
       </Reanimated.View>
-
-      <Button title="Cerrar sesión" variant="ghost" onPress={logout} />
     </Screen>
   );
 }

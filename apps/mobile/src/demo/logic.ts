@@ -86,3 +86,80 @@ export function ago(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));
   return s < 60 ? `hace ${s} s` : `hace ${Math.floor(s / 60)} min`;
 }
+
+/** Ventanas de confirmación permitidas (D-02: 5 s por defecto, configurable). */
+export const COUNTDOWN_OPTIONS = [3, 5, 10] as const;
+
+export type Settings = { countdownSeconds: number; silencioso: boolean };
+export const DEFAULT_SETTINGS: Settings = { countdownSeconds: 5, silencioso: false };
+
+/** Valida lo leído del almacenamiento (dato no confiable): lo inválido cae al valor por defecto. */
+export function sanitizeSettings(raw: unknown): Settings {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const segundos = COUNTDOWN_OPTIONS.find((n) => n === r.countdownSeconds);
+  return {
+    countdownSeconds: segundos ?? DEFAULT_SETTINGS.countdownSeconds,
+    silencioso: r.silencioso === true,
+  };
+}
+
+/** Agrega un punto al recorrido: ignora el repetido (mismo `at` que el último) y conserva los últimos `max`. */
+export function appendTrail<T extends { at: number }>(trail: T[], punto: T, max = 50): T[] {
+  if (trail.length > 0 && trail[trail.length - 1].at === punto.at) return trail;
+  return [...trail, punto].slice(-max);
+}
+
+/**
+ * Proyección simple del recorrido a una caja w x h: escala uniforme (longitud corregida por el coseno de
+ * la latitud media), centrada, norte arriba. Un solo punto queda en el centro.
+ */
+export function trailPath(
+  puntos: { lat: number; lon: number }[],
+  w: number,
+  h: number,
+  pad: number,
+): { d: string; xy: { x: number; y: number }[] } {
+  if (puntos.length === 0) return { d: '', xy: [] };
+  const latMedia = puntos.reduce((a, p) => a + p.lat, 0) / puntos.length;
+  const k = Math.cos((latMedia * Math.PI) / 180);
+  const px = puntos.map((p) => ({ x: p.lon * k, y: -p.lat }));
+  const minX = Math.min(...px.map((p) => p.x));
+  const maxX = Math.max(...px.map((p) => p.x));
+  const minY = Math.min(...px.map((p) => p.y));
+  const maxY = Math.max(...px.map((p) => p.y));
+  const spanX = maxX - minX;
+  const spanY = maxY - minY;
+  const escala =
+    spanX === 0 && spanY === 0
+      ? 0
+      : Math.min(spanX === 0 ? Infinity : (w - 2 * pad) / spanX, spanY === 0 ? Infinity : (h - 2 * pad) / spanY);
+  const r1 = (n: number) => Math.round(n * 10) / 10;
+  const xy = px.map((p) => ({
+    x: r1(w / 2 + (p.x - (minX + maxX) / 2) * escala),
+    y: r1(h / 2 + (p.y - (minY + maxY) / 2) * escala),
+  }));
+  return { d: xy.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' '), xy };
+}
+
+/** URL del mapa embebido de OpenStreetMap. Solo números con toFixed: nada inyectable en el iframe. */
+export function osmEmbedUrl(lat: number, lon: number, delta = 0.004): string {
+  const f = (n: number) => n.toFixed(5);
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${f(lon - delta)},${f(lat - delta)},${f(lon + delta)},${f(lat + delta)}&layer=mapnik&marker=${f(lat)},${f(lon)}`;
+}
+
+export function mapsUrl(lat: number, lon: number): string {
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+}
+
+/** Filas de entrega simuladas: las usan la alerta activa y el snapshot del historial (lo que ves es lo que se guarda). */
+export function deliveryRows<T extends { telefono: string }>(
+  contactos: T[],
+  elapsedMs: number,
+): (T & { estado: DeliveryState })[] {
+  return contactos.map((c, i) => ({ ...c, estado: simulatedStatus(i, c.telefono, elapsedMs) }));
+}
+
+/** "14 oct 2026, 3:05 p. m." (fecha y hora locales en es-CO). */
+export function formatFecha(ms: number): string {
+  return new Date(ms).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+}
