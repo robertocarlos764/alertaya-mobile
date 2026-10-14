@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import Reanimated from 'react-native-reanimated';
 
-import { AppText, Button, Screen, TextField } from '@/components/ui';
+import { AppText, Button, entrada, Screen, TextField } from '@/components/ui';
 import { isEmail, normalizePhone } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
 import { colors, space } from '@/theme';
@@ -46,11 +47,14 @@ export default function Register() {
       >
         <MaterialIcons name="arrow-back" size={24} color={colors.text} />
       </Pressable>
-      <AppText variant="heading">Crear cuenta</AppText>
-      <AppText color={colors.textMuted} style={styles.subtitle}>
-        Únete a la red de seguridad más avanzada.
-      </AppText>
+      <Reanimated.View entering={entrada(0)}>
+        <AppText variant="heading">Crear cuenta</AppText>
+        <AppText color={colors.textMuted} style={styles.subtitle}>
+          Únete a la red de seguridad más avanzada.
+        </AppText>
+      </Reanimated.View>
 
+      <Reanimated.View entering={entrada(1)}>
       <TextField
         label="NOMBRE COMPLETO"
         placeholder="Ej: María García"
@@ -60,6 +64,8 @@ export default function Register() {
         onBlur={tocar('nombre')}
         error={ver('nombre')}
       />
+      </Reanimated.View>
+      <Reanimated.View entering={entrada(2)}>
       <TextField
         label="CORREO ELECTRÓNICO"
         placeholder="nombre@ejemplo.com"
@@ -72,6 +78,8 @@ export default function Register() {
         onBlur={tocar('correo')}
         error={ver('correo')}
       />
+      </Reanimated.View>
+      <Reanimated.View entering={entrada(3)}>
       <TextField
         label="TELÉFONO"
         prefix="+57"
@@ -83,6 +91,8 @@ export default function Register() {
         onBlur={tocar('telefono')}
         error={ver('telefono')}
       />
+      </Reanimated.View>
+      <Reanimated.View entering={entrada(4)}>
       <TextField
         label="CONTRASEÑA"
         placeholder="••••••••"
@@ -94,10 +104,11 @@ export default function Register() {
         onBlur={tocar('clave')}
         error={ver('clave')}
       />
+      </Reanimated.View>
 
-      <View style={styles.cta}>
+      <Reanimated.View entering={entrada(5)} style={styles.cta}>
         <Button title="Crear cuenta" onPress={enviar} disabled={hayErrores} />
-      </View>
+      </Reanimated.View>
     </Screen>
   );
 }

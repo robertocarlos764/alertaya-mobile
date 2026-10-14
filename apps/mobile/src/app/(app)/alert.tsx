@@ -1,30 +1,52 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useState } from 'react';
-import { Animated, Linking, Platform, Share, StyleSheet, View } from 'react-native';
+import { Linking, Share, StyleSheet, View } from 'react-native';
+import Reanimated, {
+  FadeIn,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { HoldButton } from '@/components/HoldButton';
-import { Avatar, AppText, Button, DeliveryStatus, etiquetaEstado, Header, Screen, toast } from '@/components/ui';
+import {
+  Avatar,
+  AppText,
+  Button,
+  Card,
+  DeliveryStatus,
+  entrada,
+  etiquetaEstado,
+  Header,
+  Screen,
+  toast,
+} from '@/components/ui';
 import { ago, formatElapsed, formatPhone, headline, simulatedStatus } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
 import { useLocation } from '@/lib/useLocation';
-import { colors, radius, space } from '@/theme';
+import { colors, space } from '@/theme';
 
 const DOS_MIN = 2 * 60 * 1000;
 
+// Punto fijo con un halo que crece y se desvanece.
 function PuntoActivo() {
-  const [opacidad] = useState(() => new Animated.Value(1));
+  const halo = useSharedValue(0);
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacidad, { toValue: 0.3, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(opacidad, { toValue: 1, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [opacidad]);
-  return <Animated.View style={[styles.punto, { opacity: opacidad }]} />;
+    halo.set(withRepeat(withTiming(1, { duration: 1400 }), -1, false));
+  }, [halo]);
+  const estiloHalo = useAnimatedStyle(() => ({
+    opacity: interpolate(halo.get(), [0, 1], [0.6, 0]),
+    transform: [{ scale: interpolate(halo.get(), [0, 1], [1, 2.2]) }],
+  }));
+  return (
+    <View style={styles.puntoBox}>
+      <Reanimated.View style={[styles.punto, styles.halo, estiloHalo]} />
+      <View style={styles.punto} />
+    </View>
+  );
 }
 
 export default function Alerta() {
@@ -57,113 +79,131 @@ export default function Alerta() {
   const compartir = () => {
     if (!location) return;
     const precision = location.accuracy == null ? '' : ` (±${location.accuracy} m)`;
-    Share.share({
-      message: `Esta es mi ubicación${precision}: https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`,
+    const enlace = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`;
+    Share.share({ message: `Esta es mi ubicación${precision}: ${enlace}` }).catch(() => {
+      // Navegador sin navigator.share: se abre el enlace de Google Maps.
+      Linking.openURL(enlace);
+      toast('Tu navegador no permite compartir; abrimos el enlace de Google Maps.');
     });
   };
 
   return (
     <Screen scroll edges={['bottom']}>
-      <Header
-        right={
-          <View style={styles.activa}>
-            <PuntoActivo />
-            <AppText variant="label" color={colors.accent}>
-              ACTIVA
-            </AppText>
-            <AppText
-              accessibilityLabel={`Tiempo transcurrido ${formatElapsed(elapsed)}`}
-              style={styles.reloj}
-            >
-              {formatElapsed(elapsed)}
-            </AppText>
-          </View>
-        }
-      />
+      <Reanimated.View entering={entrada(0)}>
+        <Header
+          right={
+            <View style={styles.activa}>
+              <View style={styles.capsula}>
+                <PuntoActivo />
+                <AppText variant="label" color={colors.accent}>
+                  ACTIVA
+                </AppText>
+              </View>
+              <AppText
+                accessibilityLabel={`Tiempo transcurrido ${formatElapsed(elapsed)}`}
+                style={styles.reloj}
+              >
+                {formatElapsed(elapsed)}
+              </AppText>
+            </View>
+          }
+        />
+      </Reanimated.View>
 
-      <AppText variant="heading" color={titular.fallo ? colors.accent : colors.text}>
-        {titular.titulo}
-      </AppText>
-      <AppText color={colors.textMuted} style={styles.subtitulo}>
-        {titular.subtitulo}
-      </AppText>
+      <Reanimated.View entering={entrada(1)}>
+        <AppText variant="heading" color={titular.fallo ? colors.accent : colors.text}>
+          {titular.titulo}
+        </AppText>
+        {/* key = texto: cada cambio de titular se anima. */}
+        <Reanimated.View key={titular.subtitulo} entering={FadeIn}>
+          <AppText color={colors.textMuted} style={styles.subtitulo}>
+            {titular.subtitulo}
+          </AppText>
+        </Reanimated.View>
+      </Reanimated.View>
 
-      <AppText variant="label" color={colors.textMuted} style={styles.seccion}>
-        UBICACIÓN QUE VEN TUS CONTACTOS
-      </AppText>
-      {location ? (
-        <View style={styles.card}>
-          <MaterialIcons name="place" size={32} color={colors.accent} />
-          <AppText color={vieja ? colors.warning : colors.text} style={styles.flex}>
-            {location.accuracy == null ? '' : `±${location.accuracy} m · `}
-            {ago(now - location.at)}
-          </AppText>
-        </View>
-      ) : (
-        <View style={styles.pendiente}>
-          <MaterialIcons name="location-off" size={32} color={colors.warning} />
-          <AppText style={styles.centrado}>
-            Ubicación pendiente. Esperando señal GPS; tus contactos ven este mismo aviso.
-          </AppText>
-        </View>
-      )}
+      <Reanimated.View entering={entrada(2)}>
+        <AppText variant="label" color={colors.textMuted} style={styles.seccion}>
+          UBICACIÓN QUE VEN TUS CONTACTOS
+        </AppText>
+        {location ? (
+          <Card style={styles.ubicacion}>
+            <MaterialIcons name="place" size={32} color={colors.accent} />
+            <AppText color={vieja ? colors.warning : colors.text} style={styles.flex}>
+              {location.accuracy == null ? '' : `±${location.accuracy} m · `}
+              {ago(now - location.at)}
+            </AppText>
+          </Card>
+        ) : (
+          <Card style={styles.pendiente}>
+            <MaterialIcons name="location-off" size={32} color={colors.warning} />
+            <AppText style={styles.centrado}>
+              Ubicación pendiente. Esperando señal GPS; tus contactos ven este mismo aviso.
+            </AppText>
+          </Card>
+        )}
+      </Reanimated.View>
 
       <AppText variant="label" color={colors.textMuted} style={styles.seccion}>
         CONTACTOS
       </AppText>
-      {filas.map(({ c, estado }) => (
-        <View key={c.id} style={styles.contacto}>
-          <View
-            accessible
-            accessibilityLabel={`${c.nombre}, ${etiquetaEstado(estado)}`}
-            style={styles.contactoFila}
-          >
-            <Avatar nombre={c.nombre} size={40} />
-            <View style={styles.flex}>
-              <AppText numberOfLines={2} style={styles.nombre}>
-                {c.nombre}
-              </AppText>
-              <AppText variant="meta" color={colors.textMuted}>
-                {formatPhone(c.telefono)}
-              </AppText>
+      {filas.map(({ c, estado }, i) => (
+        <Reanimated.View key={c.id} entering={entrada(3 + i)} style={styles.contacto}>
+          <Card>
+            <View
+              accessible
+              accessibilityLabel={`${c.nombre}, ${etiquetaEstado(estado)}`}
+              style={styles.contactoFila}
+            >
+              <Avatar nombre={c.nombre} size={40} />
+              <View style={styles.flex}>
+                <AppText numberOfLines={2} style={styles.nombre}>
+                  {c.nombre}
+                </AppText>
+                <AppText variant="meta" color={colors.textMuted}>
+                  {formatPhone(c.telefono)}
+                </AppText>
+              </View>
+              <DeliveryStatus state={estado} />
             </View>
-            <DeliveryStatus state={estado} />
-          </View>
-          {estado === 'fallido' ? (
-            <View style={styles.llamar}>
-              <Button
-                title={`Llamar a ${c.nombre}`}
-                variant="outline"
-                icon="phone"
-                onPress={() => Linking.openURL('tel:' + c.telefono)}
-              />
-            </View>
-          ) : null}
-        </View>
+            {estado === 'fallido' ? (
+              <View style={styles.llamar}>
+                <Button
+                  title={`Llamar a ${c.nombre}`}
+                  variant="outline"
+                  icon="phone"
+                  onPress={() => Linking.openURL('tel:' + c.telefono)}
+                />
+              </View>
+            ) : null}
+          </Card>
+        </Reanimated.View>
       ))}
 
-      <View style={styles.bloque}>
-        <Button title="Compartir ubicación" variant="outline" icon="share" disabled={!location} onPress={compartir} />
-      </View>
+      <Reanimated.View entering={entrada(4 + filas.length)}>
+        <View style={styles.bloque}>
+          <Button title="Compartir ubicación" variant="outline" icon="share" disabled={!location} onPress={compartir} />
+        </View>
 
-      <View style={styles.bloque}>
-        <HoldButton
-          variant="fill"
-          durationMs={3000}
-          onComplete={() => {
-            finishAlert();
-            toast('Demo: alerta finalizada. Estamos avisando a tus contactos que estás a salvo.');
-          }}
-          accessibilityLabel="Estoy a salvo"
-          accessibilityHint="Mantén presionado tres segundos para finalizar la alerta"
-          actionLabel="Finalizar alerta"
-        />
-        <AppText variant="meta" color={colors.textMuted} style={styles.ayuda}>
-          Mantén presionado 3 segundos
-        </AppText>
-      </View>
+        <View style={styles.bloque}>
+          <HoldButton
+            variant="fill"
+            durationMs={3000}
+            onComplete={() => {
+              finishAlert();
+              toast('Demo: alerta finalizada. Estamos avisando a tus contactos que estás a salvo.');
+            }}
+            accessibilityLabel="Estoy a salvo"
+            accessibilityHint="Mantén presionado tres segundos para finalizar la alerta"
+            actionLabel="Finalizar alerta"
+          />
+          <AppText variant="meta" color={colors.textMuted} style={styles.ayuda}>
+            Mantén presionado 3 segundos
+          </AppText>
+        </View>
 
-      <Button title="Llamar al 123" variant="ghost" icon="phone" onPress={() => Linking.openURL('tel:123')} />
+        <Button title="Llamar al 123" variant="ghost" icon="phone" onPress={() => Linking.openURL('tel:123')} />
+      </Reanimated.View>
     </Screen>
   );
 }
@@ -171,37 +211,31 @@ export default function Alerta() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   activa: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  capsula: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xs,
+    borderRadius: 999,
+    backgroundColor: colors.accentSoft,
+  },
+  puntoBox: { width: 8, height: 8, alignItems: 'center', justifyContent: 'center' },
   punto: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent },
+  halo: { position: 'absolute' },
   reloj: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
   subtitulo: { marginTop: space.xs },
   seccion: { marginTop: space.lg, marginBottom: space.sm },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    padding: space.md,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radius.card,
-  },
+  ubicacion: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   pendiente: {
     height: 192,
-    borderRadius: radius.card,
-    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     gap: space.sm,
-    padding: space.md,
+    borderColor: colors.warning,
   },
   centrado: { textAlign: 'center' },
-  contacto: {
-    marginBottom: space.sm,
-    padding: space.md,
-    minHeight: 72,
-    borderRadius: radius.row,
-    backgroundColor: colors.surface,
-  },
+  contacto: { marginBottom: space.sm },
   contactoFila: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   nombre: { fontWeight: '600' },
   llamar: { marginTop: space.sm },

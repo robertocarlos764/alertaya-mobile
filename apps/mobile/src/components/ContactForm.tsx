@@ -1,12 +1,13 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Reanimated from 'react-native-reanimated';
 
-import { Avatar, AppText, Button, Screen, TextField, toast } from '@/components/ui';
+import { Avatar, AppText, Button, Chip, entrada, Screen, TextField, toast } from '@/components/ui';
 import { normalizePhone } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
-import { colors, radius, space } from '@/theme';
+import { colors, space } from '@/theme';
 
 const RELACIONES = ['Mamá', 'Papá', 'Pareja', 'Hermano/a', 'Amigo/a', 'Otro'];
 
@@ -53,7 +54,7 @@ export function ContactForm({ id }: { id?: string }) {
 
   return (
     <Screen scroll edges={['bottom']}>
-      <View style={styles.header}>
+      <Reanimated.View entering={entrada(0)} style={styles.header}>
         <Pressable
           accessibilityLabel="Volver"
           accessibilityRole="button"
@@ -63,12 +64,13 @@ export function ContactForm({ id }: { id?: string }) {
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <AppText variant="heading">{existente ? 'Editar contacto' : 'Nuevo contacto'}</AppText>
-      </View>
+      </Reanimated.View>
 
-      <View style={styles.avatar}>
+      <Reanimated.View entering={entrada(1)} style={styles.avatar}>
         <Avatar nombre={nombre} size={80} />
-      </View>
+      </Reanimated.View>
 
+      <Reanimated.View entering={entrada(2)}>
       <AppText variant="label" color={colors.textMuted} style={styles.section}>
         INFORMACIÓN
       </AppText>
@@ -92,30 +94,22 @@ export function ContactForm({ id }: { id?: string }) {
         onBlur={() => setTocados((t) => ({ ...t, telefono: true }))}
         error={tocados.telefono ? errores.telefono : undefined}
       />
+      </Reanimated.View>
 
+      <Reanimated.View entering={entrada(3)}>
       <AppText variant="label" color={colors.textMuted} style={styles.fieldLabel}>
         RELACIÓN (OPCIONAL)
       </AppText>
       <View style={styles.chips}>
-        {RELACIONES.map((r) => {
-          const selected = relacion === r;
-          return (
-            <Pressable
-              key={r}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => setRelacion(selected ? undefined : r)}
-              style={[styles.chip, { borderColor: selected ? colors.accent : colors.border }]}
-            >
-              <Text style={styles.chipText}>{r}</Text>
-            </Pressable>
-          );
-        })}
+        {RELACIONES.map((r) => (
+          <Chip key={r} label={r} selected={relacion === r} onPress={() => setRelacion(relacion === r ? undefined : r)} />
+        ))}
       </View>
+      </Reanimated.View>
 
-      <View style={styles.cta}>
+      <Reanimated.View entering={entrada(4)} style={styles.cta}>
         <Button title="Guardar contacto" onPress={guardar} disabled={hayErrores} />
-      </View>
+      </Reanimated.View>
       {!existente ? (
         <AppText variant="meta" color={colors.textMuted} style={styles.note}>
           Este contacto recibirá un SMS con un enlace cuando actives una alerta.
@@ -132,15 +126,6 @@ const styles = StyleSheet.create({
   section: { marginBottom: space.md },
   fieldLabel: { marginBottom: space.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  chip: {
-    height: 40,
-    paddingHorizontal: space.md,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    justifyContent: 'center',
-  },
-  chipText: { color: colors.text, fontSize: 16 },
   cta: { marginTop: space.lg, marginBottom: space.xl },
   note: { textAlign: 'center', marginTop: -space.sm, marginBottom: space.lg },
 });

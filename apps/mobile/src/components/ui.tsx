@@ -19,11 +19,15 @@ import {
   type ViewStyle,
 } from 'react-native';
 import Reanimated, {
+  cancelAnimation,
   FadeInDown,
   FadeOutDown,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
+  withRepeat,
   withSpring,
+  withTiming,
   ZoomIn,
 } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
@@ -110,6 +114,60 @@ export function PressableScale({
     >
       {children}
     </APressable>
+  );
+}
+
+/** Escala suave de ida y vuelta (glow que respira). Con "reducir movimiento" queda quieto. */
+export function Respira({
+  children,
+  style,
+  min = 0.94,
+  max = 1.06,
+  ms = 1600,
+}: {
+  children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  min?: number;
+  max?: number;
+  ms?: number;
+}) {
+  const reducido = useReducedMotion();
+  const v = useSharedValue(1);
+  useEffect(() => {
+    if (reducido) return;
+    v.set(min);
+    v.set(withRepeat(withTiming(max, { duration: ms }), -1, true));
+    return () => cancelAnimation(v);
+  }, [reducido, min, max, ms, v]);
+  const animado = useAnimatedStyle(() => ({ transform: [{ scale: v.get() }] }));
+  return <Reanimated.View style={[style, animado]}>{children}</Reanimated.View>;
+}
+
+/** Icono grande en círculo con degradado y glow que respira (login, bienvenida). */
+export function Logo({
+  size = 96,
+  icon = 'shield',
+  fondo = gradients.sos,
+}: {
+  size?: number;
+  icon?: IconName;
+  fondo?: Degradado;
+}) {
+  const caja = size * 1.5;
+  return (
+    <View style={{ width: caja, height: caja, alignItems: 'center', justifyContent: 'center' }}>
+      <Respira
+        style={{ position: 'absolute', width: caja, height: caja, borderRadius: caja / 2, backgroundColor: colors.accentSoft }}
+      />
+      <LinearGradient
+        colors={fondo}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center' }}
+      >
+        <MaterialIcons name={icon} size={size * 0.5} color={colors.text} />
+      </LinearGradient>
+    </View>
   );
 }
 

@@ -1,9 +1,9 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import Reanimated from 'react-native-reanimated';
 
-import { AppText, Button, Screen, TextField } from '@/components/ui';
+import { AppText, Button, entrada, Logo, Screen, TextField } from '@/components/ui';
 import { isEmail } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
 import { colors, space } from '@/theme';
@@ -29,16 +29,17 @@ export default function Login() {
 
   return (
     <Screen scroll edges={['bottom']}>
-      <View style={styles.hero}>
-        <MaterialIcons name="shield" size={48} color={colors.accent} />
+      <Reanimated.View entering={entrada(0)} style={styles.hero}>
+        <Logo />
         <AppText variant="heading" style={styles.title}>
           AlertaYA
         </AppText>
         <AppText color={colors.textMuted} style={styles.center}>
           Protección de alto nivel para lo que más importa.
         </AppText>
-      </View>
+      </Reanimated.View>
 
+      <Reanimated.View entering={entrada(1)}>
       <TextField
         label="CORREO ELECTRÓNICO"
         placeholder="nombre@ejemplo.com"
@@ -51,6 +52,8 @@ export default function Login() {
         onBlur={() => setTocados((t) => ({ ...t, correo: true }))}
         error={tocados.correo ? errCorreo : undefined}
       />
+      </Reanimated.View>
+      <Reanimated.View entering={entrada(2)}>
       <TextField
         label="CONTRASEÑA"
         placeholder="••••••••"
@@ -62,22 +65,25 @@ export default function Login() {
         onBlur={() => setTocados((t) => ({ ...t, clave: true }))}
         error={tocados.clave ? errClave : undefined}
       />
+      </Reanimated.View>
 
-      <View style={styles.cta}>
+      <Reanimated.View entering={entrada(3)} style={styles.cta}>
         <Button title="Iniciar sesión" onPress={enviar} disabled={hayErrores} />
-      </View>
+      </Reanimated.View>
 
-      <Pressable accessibilityRole="link" onPress={() => router.push('/register')} style={styles.link}>
-        <Text style={styles.linkMuted}>
-          ¿No tienes una cuenta? <Text style={styles.linkStrong}>Crear cuenta</Text>
-        </Text>
-      </Pressable>
+      <Reanimated.View entering={entrada(4)}>
+        <Pressable accessibilityRole="link" onPress={() => router.push('/register')} style={styles.link}>
+          <Text style={styles.linkMuted}>
+            ¿No tienes una cuenta? <Text style={styles.linkStrong}>Crear cuenta</Text>
+          </Text>
+        </Pressable>
+      </Reanimated.View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', marginTop: space.xxxl, marginBottom: space.xl, gap: space.sm },
+  hero: { alignItems: 'center', marginTop: space.xl, marginBottom: space.lg, gap: space.sm },
   title: { marginTop: space.sm },
   center: { textAlign: 'center' },
   cta: { marginTop: space.md },

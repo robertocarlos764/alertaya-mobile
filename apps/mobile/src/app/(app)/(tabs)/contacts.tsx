@@ -1,87 +1,117 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import Reanimated, { FadeInDown, FadeOutLeft, LinearTransition } from 'react-native-reanimated';
 
-import { Avatar, AppText, Button, Header, Screen } from '@/components/ui';
+import { Avatar, AppText, Button, entrada, Header, PressableScale, Screen, toast } from '@/components/ui';
 import { formatPhone } from '@/demo/logic';
 import { useDemo } from '@/demo/store';
-import { colors, radius, space } from '@/theme';
+import { colors, gradients, radius, space } from '@/theme';
 
 export default function Contactos() {
   const { contacts, removeContact } = useDemo();
 
-  const confirmarEliminar = (id: string, nombre: string) =>
-    Alert.alert(
-      'Eliminar contacto',
-      `¿Eliminar a ${nombre} de tus contactos de emergencia? Dejará de recibir tus alertas.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Eliminar', style: 'destructive', onPress: () => removeContact(id) },
-      ],
-    );
+  const eliminar = (id: string, nombre: string) => {
+    removeContact(id);
+    toast(`${nombre} eliminado.`);
+  };
+
+  const confirmarEliminar = (id: string, nombre: string) => {
+    const mensaje = `¿Eliminar a ${nombre} de tus contactos de emergencia? Dejará de recibir tus alertas.`;
+    // Alert.alert de react-native-web no hace nada: en web se usa el confirm del navegador.
+    if (Platform.OS === 'web') {
+      if (window.confirm(mensaje)) eliminar(id, nombre);
+      return;
+    }
+    Alert.alert('Eliminar contacto', mensaje, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Eliminar', style: 'destructive', onPress: () => eliminar(id, nombre) },
+    ]);
+  };
 
   return (
     <Screen edges={[]}>
-      <Header />
-      <AppText variant="heading">Contactos</AppText>
-      {contacts.length > 0 ? (
-        <AppText color={colors.textMuted} style={styles.count}>
-          {contacts.length === 1 ? '1 contacto de emergencia' : `${contacts.length} contactos de emergencia`}
-        </AppText>
-      ) : null}
+      <Reanimated.View entering={entrada(0)}>
+        <Header />
+      </Reanimated.View>
+      <Reanimated.View entering={entrada(1)}>
+        <AppText variant="heading">Contactos</AppText>
+        {contacts.length > 0 ? (
+          <AppText color={colors.textMuted} style={styles.count}>
+            {contacts.length === 1 ? '1 contacto de emergencia' : `${contacts.length} contactos de emergencia`}
+          </AppText>
+        ) : null}
+      </Reanimated.View>
 
       {contacts.length === 0 ? (
-        <View style={styles.empty}>
-          <AppText variant="heading">Sin contactos aún</AppText>
-          <AppText color={colors.textMuted} style={styles.emptyBody}>
+        <Reanimated.View entering={entrada(2)} style={styles.empty}>
+          <View style={styles.emptyIcon}>
+            <LinearGradient colors={gradients.cool} style={styles.emptyCircle}>
+              <MaterialIcons name="group" size={40} color={colors.text} />
+            </LinearGradient>
+          </View>
+          <AppText variant="heading" style={styles.centrado}>
+            Sin contactos aún
+          </AppText>
+          <AppText color={colors.textMuted} style={[styles.emptyBody, styles.centrado]}>
             Agrega a quienes quieres que avisemos en una emergencia. Necesitas al menos uno para usar SOS.
           </AppText>
-          <Button title="Agregar contacto" variant="outline" onPress={() => router.push('/contacts/new')} />
-        </View>
+          <Button title="Agregar contacto" variant="cool" onPress={() => router.push('/contacts/new')} />
+        </Reanimated.View>
       ) : (
-        <FlatList
-          data={contacts}
-          keyExtractor={(c) => c.id}
-          contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.gap} />}
-          renderItem={({ item }) => (
-            <Pressable
-              accessibilityLabel={`Editar a ${item.nombre}`}
-              accessibilityRole="button"
-              onPress={() => router.push({ pathname: '/contacts/[id]', params: { id: item.id } })}
-              style={styles.row}
+        <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+          {/* ponytail: ScrollView + map (sin FlatList) para poder animar entradas y salidas; el store
+              limita a ~15 contactos por SecureStore. */}
+          {contacts.map((item, i) => (
+            <Reanimated.View
+              key={item.id}
+              entering={FadeInDown.delay(i * 60)}
+              exiting={FadeOutLeft}
+              layout={LinearTransition}
+              style={styles.fila}
             >
-              <Avatar nombre={item.nombre} size={40} />
-              <View style={styles.rowText}>
-                <AppText numberOfLines={1} style={styles.name}>
-                  {item.nombre}
-                </AppText>
-                <AppText variant="meta" color={colors.textMuted} numberOfLines={1}>
-                  {item.relacion ? `${item.relacion} · ` : ''}
-                  {formatPhone(item.telefono)}
-                </AppText>
-              </View>
-              <Pressable
-                accessibilityLabel={`Eliminar a ${item.nombre}`}
+              <PressableScale
+                accessibilityLabel={`Editar a ${item.nombre}`}
                 accessibilityRole="button"
-                onPress={() => confirmarEliminar(item.id, item.nombre)}
-                style={styles.delete}
+                onPress={() => router.push({ pathname: '/contacts/[id]', params: { id: item.id } })}
+                style={styles.row}
               >
-                <MaterialIcons name="delete-outline" size={24} color={colors.textMuted} />
-              </Pressable>
-            </Pressable>
-          )}
-        />
+                <LinearGradient colors={gradients.card} style={StyleSheet.absoluteFill} />
+                <Avatar nombre={item.nombre} size={40} />
+                <View style={styles.rowText}>
+                  <AppText numberOfLines={1} style={styles.name}>
+                    {item.nombre}
+                  </AppText>
+                  <AppText variant="meta" color={colors.textMuted} numberOfLines={1}>
+                    {item.relacion ? `${item.relacion} · ` : ''}
+                    {formatPhone(item.telefono)}
+                  </AppText>
+                </View>
+                <PressableScale
+                  accessibilityLabel={`Eliminar a ${item.nombre}`}
+                  accessibilityRole="button"
+                  onPress={() => confirmarEliminar(item.id, item.nombre)}
+                  style={styles.delete}
+                >
+                  <MaterialIcons name="delete-outline" size={24} color={colors.textMuted} />
+                </PressableScale>
+              </PressableScale>
+            </Reanimated.View>
+          ))}
+        </ScrollView>
       )}
 
-      <Pressable
+      <PressableScale
         accessibilityLabel="Agregar contacto"
         accessibilityRole="button"
         onPress={() => router.push('/contacts/new')}
-        style={({ pressed }) => [styles.fab, pressed && { transform: [{ scale: 0.95 }] }]}
+        style={styles.fab}
       >
-        <MaterialIcons name="add" size={28} color={colors.text} />
-      </Pressable>
+        <LinearGradient colors={gradients.cool} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.fabFondo}>
+          <MaterialIcons name="add" size={28} color={colors.text} />
+        </LinearGradient>
+      </PressableScale>
     </Screen>
   );
 }
@@ -89,32 +119,26 @@ export default function Contactos() {
 const styles = StyleSheet.create({
   count: { marginTop: space.xs },
   list: { paddingTop: space.md, paddingBottom: 80 },
-  gap: { height: space.sm },
+  fila: { marginBottom: space.sm },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
     minHeight: 72,
     padding: space.md,
-    backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: radius.row,
+    overflow: 'hidden',
   },
   rowText: { flex: 1 },
   name: { fontWeight: '600' },
   delete: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', marginRight: -space.sm },
   empty: { flex: 1, justifyContent: 'center', gap: space.md },
+  emptyIcon: { alignItems: 'center' },
+  emptyCircle: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
   emptyBody: { marginBottom: space.sm },
-  fab: {
-    position: 'absolute',
-    right: space.md,
-    bottom: space.md,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  centrado: { textAlign: 'center' },
+  fab: { position: 'absolute', right: space.md, bottom: space.md, width: 56, height: 56, borderRadius: 28 },
+  fabFondo: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
 });

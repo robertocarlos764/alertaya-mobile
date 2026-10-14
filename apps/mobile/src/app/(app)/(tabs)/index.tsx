@@ -2,9 +2,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
+import Reanimated from 'react-native-reanimated';
 
 import { HoldButton } from '@/components/HoldButton';
-import { AppText, Button, Card, Header, Screen, toast } from '@/components/ui';
+import { AppText, Button, Card, entrada, Header, Screen, toast } from '@/components/ui';
 import { useDemo } from '@/demo/store';
 import { useLocation, type EstadoUbicacion } from '@/lib/useLocation';
 import { colors, radius, space } from '@/theme';
@@ -17,10 +18,12 @@ export default function Inicio() {
 
   return (
     <Screen edges={[]}>
-      <Header />
+      <Reanimated.View entering={entrada(0)}>
+        <Header />
+      </Reanimated.View>
       <View style={styles.flex} />
 
-      <View style={styles.center}>
+      <Reanimated.View entering={entrada(1)} style={styles.center}>
         <HoldButton
           variant="ring"
           durationMs={2000}
@@ -37,7 +40,7 @@ export default function Inicio() {
           accessibilityHint="Mantén presionado dos segundos para iniciar la cuenta regresiva"
           actionLabel="Iniciar cuenta regresiva SOS"
         />
-        <View style={styles.help}>
+        <Reanimated.View entering={entrada(2)} style={styles.help}>
           {sinContactos ? (
             <>
               <AppText color={colors.textMuted} style={styles.centerText}>
@@ -50,11 +53,12 @@ export default function Inicio() {
               {presionando ? 'Sigue presionando…' : 'Mantén presionado 2 segundos para activar.'}
             </AppText>
           )}
-        </View>
-      </View>
+        </Reanimated.View>
+      </Reanimated.View>
 
       <View style={styles.flex} />
 
+      <Reanimated.View entering={entrada(3)}>
       <Card style={styles.card}>
         <View style={styles.mapIcon}>
           <MaterialIcons name="map" size={24} color={colors.textMuted} />
@@ -67,6 +71,7 @@ export default function Inicio() {
         </View>
         <MaterialIcons name="my-location" size={24} color={colors.textMuted} />
       </Card>
+      </Reanimated.View>
 
       <Button title="Cerrar sesión" variant="ghost" onPress={logout} />
     </Screen>
