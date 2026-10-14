@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-06)
 Phase: 01 (SOS de punta a punta) — EXECUTING
 Plan: 1 of 16
 Status: Executing Phase 01
-Last activity: 2026-10-14 - Completed quick task 261014-hhf: prototipo demo de la app movil (Expo Go)
+Last activity: 2026-10-14 - Completed quick task 261014-j0a: pulir prototipo (web, animaciones, pantallas nuevas)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -83,6 +83,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 261014-hhf | Prototipo demo de la app móvil (Expo Go, modo demo, sin backend; no completa 01-11..01-15) | 2026-10-14 | 8ad1ec4 | [261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m](./quick/261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m/) |
+| 261014-j0a | Pulir prototipo: web, SOS que responde, paleta viva, animaciones, historial, ajustes, vista del contacto y bienvenida (modo demo) | 2026-10-14 | e304456 | [261014-j0a-pulir-prototipo-web-sos-colores-vivos-an](./quick/261014-j0a-pulir-prototipo-web-sos-colores-vivos-an/) |
 - [Plataforma]: .NET 8 pierde soporte el 2026-11-10 (PLAT-V2-01 en v2)
 
 ## Deferred Items
