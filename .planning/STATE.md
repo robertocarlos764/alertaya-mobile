@@ -94,6 +94,7 @@ None yet.
 | 261014-j0a | Pulir prototipo: web, SOS que responde, paleta viva, animaciones, historial, ajustes, vista del contacto y bienvenida (modo demo) | 2026-10-14 | e304456 | [261014-j0a-pulir-prototipo-web-sos-colores-vivos-an](./quick/261014-j0a-pulir-prototipo-web-sos-colores-vivos-an/) |
 | 261015-pda | Puertos de datos (Auth/Contacts/Alerts) con adaptador demo, alerta activa completa (D-09..D-12), sin red con clientGeneratedId y estados de UI-SPEC (modo demo; prepara 01-11..01-15) | 2026-10-15 | b9e6701 | [261015-pda-puertos-de-datos-alerta-activa-y-sin-red](./quick/261015-pda-puertos-de-datos-alerta-activa-y-sin-red/) |
 | 261015-pub | Página pública /t/[token] en apps/web (Next.js 16, maplibre OpenFreeMap dark, polling y todos los estados de UI-SPEC) con fixtures detrás de un único módulo de acceso; 01-10 solo conecta NEXT_PUBLIC_API_URL y despliega | 2026-10-15 | 2612397 | [261015-pub-pagina-publica-t-token-con-fixtures](./quick/261015-pub-pagina-publica-t-token-con-fixtures/) |
+| 261015-map | Rojo #E8212B como acento, foco propio en web, LiveMap con MapLibre (web y development build; SVG en Expo Go), pulso tipo radar, pantalla Ubicación actual con nombre del lugar, mini mapa directo en la alerta (fuera /tracking) e historial con recorrido (modo demo; prepara 01-15) | 2026-10-15 | 672214d | [261015-map-rojo-foco-mapas-reales-y-ubicacion](./quick/261015-map-rojo-foco-mapas-reales-y-ubicacion/) |
 
 - [Plataforma]: .NET 8 pierde soporte el 2026-11-10 (PLAT-V2-01 en v2)
 
