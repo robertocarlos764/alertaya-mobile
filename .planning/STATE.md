@@ -92,6 +92,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 261014-hhf | Prototipo demo de la app móvil (Expo Go, modo demo, sin backend; no completa 01-11..01-15) | 2026-10-14 | 8ad1ec4 | [261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m](./quick/261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m/) |
 | 261014-j0a | Pulir prototipo: web, SOS que responde, paleta viva, animaciones, historial, ajustes, vista del contacto y bienvenida (modo demo) | 2026-10-14 | e304456 | [261014-j0a-pulir-prototipo-web-sos-colores-vivos-an](./quick/261014-j0a-pulir-prototipo-web-sos-colores-vivos-an/) |
+| 261015-pda | Puertos de datos (Auth/Contacts/Alerts) con adaptador demo, alerta activa completa (D-09..D-12), sin red con clientGeneratedId y estados de UI-SPEC (modo demo; prepara 01-11..01-15) | 2026-10-15 | b9e6701 | [261015-pda-puertos-de-datos-alerta-activa-y-sin-red](./quick/261015-pda-puertos-de-datos-alerta-activa-y-sin-red/) |
 
 - [Plataforma]: .NET 8 pierde soporte el 2026-11-10 (PLAT-V2-01 en v2)
 
