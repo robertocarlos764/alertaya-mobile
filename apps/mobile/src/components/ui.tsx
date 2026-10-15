@@ -198,9 +198,8 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.chip, { borderColor: selected ? colors.cyan : colors.border }]}
+      style={[styles.chip, selected && styles.chipSelected]}
     >
-      {selected ? <LinearGradient colors={gradients.cool} style={StyleSheet.absoluteFill} /> : null}
       <Text style={styles.chipText}>{label}</Text>
     </PressableScale>
   );
@@ -225,13 +224,13 @@ export function Button({
 }: {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'ghost' | 'cool' | 'danger';
+  variant?: 'primary' | 'outline' | 'ghost' | 'danger';
   icon?: IconName;
   loading?: boolean;
   disabled?: boolean;
 }) {
   const inactivo = !!disabled || !!loading;
-  const degradado = variant === 'primary' ? gradients.primary : variant === 'cool' ? gradients.cool : null;
+  const degradado = variant === 'primary' ? gradients.primary : null;
   const colorTexto = disabled
     ? colors.disabled
     : variant === 'ghost'
@@ -339,10 +338,7 @@ export function TextField({
 
 export function Avatar({ nombre, size = 40 }: { nombre: string; size?: number }) {
   return (
-    <LinearGradient
-      colors={gradients.cool}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+    <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       style={[styles.avatar, { width: size, height: size, borderRadius: size / 2 }]}
@@ -350,7 +346,7 @@ export function Avatar({ nombre, size = 40 }: { nombre: string; size?: number })
       <Text style={{ color: colors.text, fontWeight: '600', fontSize: size >= 80 ? 28 : 12 }}>
         {initials(nombre)}
       </Text>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -373,7 +369,7 @@ export function Header({ right }: { right?: ReactNode }) {
 const TONOS: Record<DeliveryTone, { color: string; fondo: string }> = {
   muted: { color: colors.textMuted, fondo: colors.glass },
   warning: { color: colors.warning, fondo: colors.warningSoft },
-  info: { color: colors.cyan, fondo: colors.violetSoft },
+  info: { color: colors.text, fondo: colors.glass },
   success: { color: colors.success, fondo: colors.successSoft },
   danger: { color: colors.accent, fondo: colors.accentSoft },
 };
@@ -503,7 +499,7 @@ export function SnackbarHost() {
               }}
               style={styles.snackAction}
             >
-              <AppText color={colors.cyan} style={styles.snackActionText}>
+              <AppText color={colors.accent} style={styles.snackActionText}>
                 {actual.accion.label.toUpperCase()}
               </AppText>
             </Pressable>
@@ -545,9 +541,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
     borderWidth: 1,
+    borderColor: colors.border,
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  chipSelected: { borderColor: colors.accent, borderWidth: 1.5, backgroundColor: colors.accentSoft },
   chipText: { color: colors.text, fontSize: 16 },
   field: { marginBottom: space.md },
   fieldLabel: { marginBottom: space.sm },
@@ -563,7 +561,7 @@ const styles = StyleSheet.create({
   inputText: { flex: 1, color: colors.text, fontSize: 16, height: '100%' },
   eye: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', marginRight: -space.md },
   errorRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs, marginTop: space.xs },
-  avatar: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  avatar: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: colors.border },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.md },
   brand: { fontWeight: '600' },
   status: { maxWidth: 160, borderRadius: radius.row, paddingHorizontal: space.sm, paddingVertical: space.xs },

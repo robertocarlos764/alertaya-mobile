@@ -18,7 +18,7 @@ export function TrailMap({ trail }: { trail: { lat: number; lon: number }[] }) {
       <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
         <Defs>
           <LinearGradient id="trazo" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={W} y2="0">
-            <Stop offset="0" stopColor={colors.violet} />
+            <Stop offset="0" stopColor={colors.deepRed} />
             <Stop offset="1" stopColor={colors.accent} />
           </LinearGradient>
         </Defs>

@@ -44,7 +44,7 @@ export default function Historial() {
                   <View style={styles.cabecera}>
                     <AppText style={styles.fecha}>{formatFecha(h.createdAt)}</AppText>
                     <View style={styles.chip}>
-                      <AppText variant="label" color={colors.cyan}>
+                      <AppText variant="label" color={colors.accent}>
                         Botón
                       </AppText>
                     </View>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     paddingVertical: space.xs,
     borderRadius: radius.pill,
-    backgroundColor: colors.violetSoft,
+    backgroundColor: colors.accentSoft,
   },
   contacto: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.xs },
   nombre: { flex: 1 },

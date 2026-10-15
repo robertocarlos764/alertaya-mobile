@@ -1,39 +1,33 @@
 // Tokens de color, espacio y tipografía. Única fuente: ninguna pantalla escribe hex ni rgba.
-// Desviación deliberada de 01-UI-SPEC (L-03, Roberto 2026-10-14): paleta viva con degradados para el
-// demo de 2026-10-15 en lugar de la paleta sobria. Se conservan todas las claves originales.
+// Paleta del legacy / 01-UI-SPEC (Roberto 2026-10-15: volver al rojo del proyecto original). Los degradados
+// de 261014-j0a se conservan solo en rojo, para el glow; el acento de botones, pestaña, enlaces y foco es #E8212B.
 export const colors = {
-  bg: '#0A0618',
-  bgAlt: '#170B2E',
-  surface: '#1A1430',
-  surfaceHi: '#241C40',
-  border: '#342A57',
-  accent: '#FF2E55',
-  accentHot: '#FF7A1A',
-  magenta: '#E0218A',
-  violet: '#8B5CF6',
-  cyan: '#22D3EE',
-  text: '#FFFFFF',
-  textMuted: '#B3ABCF',
-  disabled: '#5D5478',
-  success: '#2EF08A',
-  warning: '#FFB020',
+  bg: '#0D0D0D',
+  surface: '#1A1A1A',
+  surfaceHi: '#222222',
+  border: '#2A2A2A',
+  accent: '#E8212B',
   deepRed: '#B3121B',
-  glass: 'rgba(255,255,255,0.06)',
-  accentSoft: 'rgba(255,46,85,0.18)',
-  violetSoft: 'rgba(139,92,246,0.18)',
-  successSoft: 'rgba(46,240,138,0.16)',
-  warningSoft: 'rgba(255,176,32,0.16)',
+  text: '#FFFFFF',
+  textMuted: '#9A9A9A',
+  disabled: '#5A5A5A',
+  success: '#4ADE80',
+  warning: '#F5A524',
+  glass: 'rgba(255,255,255,0.04)',
+  accentSoft: 'rgba(232,33,43,0.18)',
+  successSoft: 'rgba(74,222,128,0.16)',
+  warningSoft: 'rgba(245,165,36,0.16)',
 };
 
 // Tuplas readonly: expo-linear-gradient exige al menos 2 colores.
 export const gradients = {
-  bg: [colors.bg, colors.bgAlt, colors.bg],
-  sos: [colors.accent, colors.magenta],
-  primary: [colors.accent, colors.magenta],
-  cool: [colors.violet, colors.cyan],
-  card: ['rgba(139,92,246,0.16)', 'rgba(34,211,238,0.05)'],
-  success: [colors.success, '#10B981'],
-  countdown: [colors.deepRed, colors.magenta],
+  // Fondo casi plano con un leve brillo rojo arriba (el "glow" de la marca).
+  bg: ['#1A0A0B', colors.bg, colors.bg],
+  sos: [colors.accent, colors.deepRed],
+  primary: [colors.accent, colors.deepRed],
+  card: [colors.surface, colors.surface],
+  success: [colors.success, '#16A34A'],
+  countdown: [colors.deepRed, '#7A0B11'],
   quiet: [colors.bg, colors.bg],
   disabled: [colors.border, colors.surfaceHi],
 } as const;

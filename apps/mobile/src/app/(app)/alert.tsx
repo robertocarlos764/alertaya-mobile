@@ -197,7 +197,6 @@ export default function Alerta() {
           <View style={styles.bloque}>
             <Button
               title="Ver lo que ven tus contactos"
-              variant="cool"
               icon="visibility"
               onPress={() => router.push('/tracking')}
             />

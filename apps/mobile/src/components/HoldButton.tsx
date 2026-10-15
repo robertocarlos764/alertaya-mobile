@@ -61,7 +61,7 @@ function Onda({ i, activa }: { i: number; activa: boolean }) {
     opacity: interpolate(p.get(), [0, 1], [0.55, 0]),
     transform: [{ scale: interpolate(p.get(), [0, 1], [0.7, 1.55]) }],
   }));
-  return <Reanimated.View style={[styles.onda, { borderColor: i % 2 ? colors.magenta : colors.accent }, estilo]} />;
+  return <Reanimated.View style={[styles.onda, { borderColor: i % 2 ? colors.deepRed : colors.accent }, estilo]} />;
 }
 
 export function HoldButton({

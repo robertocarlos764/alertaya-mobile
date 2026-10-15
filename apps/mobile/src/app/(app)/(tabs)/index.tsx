@@ -50,7 +50,7 @@ export default function Inicio() {
               <AppText color={colors.textMuted} style={styles.centerText}>
                 Agrega al menos un contacto para poder usar SOS.
               </AppText>
-              <Button title="Agregar contacto" variant="cool" onPress={() => router.push('/contacts/new')} />
+              <Button title="Agregar contacto" onPress={() => router.push('/contacts/new')} />
             </>
           ) : (
             <>

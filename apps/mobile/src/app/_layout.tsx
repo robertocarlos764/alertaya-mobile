@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import '@/global.css';
 import { DemoBanner, SnackbarHost } from '@/components/ui';
 import { DataProvider, IS_DEMO, useAlerts, useAuth, useLocalExtras } from '@/data';
 import { initialScreen } from '@/data/logic';

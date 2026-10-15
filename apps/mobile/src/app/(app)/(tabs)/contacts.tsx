@@ -77,7 +77,7 @@ export default function Contactos() {
       ) : contacts.length === 0 ? (
         <Reanimated.View entering={entrada(2)} style={styles.empty}>
           <View style={styles.emptyIcon}>
-            <LinearGradient colors={gradients.cool} style={styles.emptyCircle}>
+            <LinearGradient colors={gradients.sos} style={styles.emptyCircle}>
               <MaterialIcons name="group" size={40} color={colors.text} />
             </LinearGradient>
           </View>
@@ -87,7 +87,7 @@ export default function Contactos() {
           <AppText color={colors.textMuted} style={[styles.emptyBody, styles.centrado]}>
             Agrega a quienes quieres que avisemos en una emergencia. Necesitas al menos uno para usar SOS.
           </AppText>
-          <Button title="Agregar contacto" variant="cool" onPress={() => router.push('/contacts/new')} />
+          <Button title="Agregar contacto" onPress={() => router.push('/contacts/new')} />
         </Reanimated.View>
       ) : (
         <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
@@ -138,7 +138,7 @@ export default function Contactos() {
         onPress={() => router.push('/contacts/new')}
         style={styles.fab}
       >
-        <LinearGradient colors={gradients.cool} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.fabFondo}>
+        <LinearGradient colors={gradients.sos} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.fabFondo}>
           <MaterialIcons name="add" size={28} color={colors.text} />
         </LinearGradient>
       </PressableScale>

@@ -64,7 +64,7 @@ export default function Ajustes() {
               accessibilityLabel="Modo silencioso"
               value={settings.silencioso}
               onValueChange={(v) => updateSettings({ silencioso: v })}
-              trackColor={{ false: colors.border, true: colors.violet }}
+              trackColor={{ false: colors.border, true: colors.accent }}
               thumbColor={colors.text}
             />
           </View>

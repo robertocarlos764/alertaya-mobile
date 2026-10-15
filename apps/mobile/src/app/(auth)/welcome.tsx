@@ -9,7 +9,7 @@ import { colors, gradients, radius, space } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
-const PAGINAS: { icono: IconName; fondo: typeof gradients.sos | typeof gradients.cool; titulo: string; texto: string }[] = [
+const PAGINAS: { icono: IconName; fondo: typeof gradients.sos; titulo: string; texto: string }[] = [
   {
     icono: 'touch-app',
     fondo: gradients.sos,
@@ -18,13 +18,13 @@ const PAGINAS: { icono: IconName; fondo: typeof gradients.sos | typeof gradients
   },
   {
     icono: 'group',
-    fondo: gradients.cool,
+    fondo: gradients.sos,
     titulo: 'Tus contactos de confianza',
     texto: 'Avisamos a las personas que elijas, con tu ubicación real.',
   },
   {
     icono: 'info-outline',
-    fondo: gradients.cool,
+    fondo: gradients.sos,
     titulo: 'Esto es una demo',
     texto:
       'No se envían SMS reales y los estados de entrega son simulados. Tu ubicación sí es real, o aparece como pendiente.',
