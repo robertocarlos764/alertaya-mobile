@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~57.0.17",
     "@expo/vector-icons": "^15.0.2",
+    "@maplibre/maplibre-react-native": "11.5.0",
     "@react-native-community/netinfo": "12.0.1",
     "expo": "~57.0.24",
     "expo-constants": "~57.0.22",
@@ -19,6 +20,7 @@
     "expo-secure-store": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
+    "maplibre-gl": "6.13.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -41,7 +43,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "postinstall": "node -e \"require('fs').mkdirSync('public',{recursive:true});require('fs').copyFileSync('node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs','public/maplibre-gl-worker.mjs')\""
   },
   "private": true
 }
