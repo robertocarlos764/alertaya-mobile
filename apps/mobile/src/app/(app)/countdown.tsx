@@ -1,7 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { BackHandler, StyleSheet, Text, Vibration, View } from 'react-native';
+import { AppState, BackHandler, StyleSheet, Text, Vibration, View } from 'react-native';
 import Reanimated, {
   interpolate,
   useAnimatedStyle,
@@ -13,6 +13,7 @@ import Reanimated, {
 
 import { AppText, PressableScale, Screen, toast } from '@/components/ui';
 import { useAlerts, useLocalExtras } from '@/data';
+import { secondsLeft } from '@/data/logic';
 import { useLocation } from '@/lib/useLocation';
 import { colors, gradients, radius, space } from '@/theme';
 
@@ -27,7 +28,23 @@ export default function Cuenta() {
   useEffect(() => {
     fixRef.current = fix;
   }, [fix]);
-  const [left, setLeft] = useState(settings.countdownSeconds);
+  // Deadline absoluto (01-13): si la app pasa a segundo plano, al volver se recalcula con la hora real y,
+  // si ya venció, la alerta se dispara.
+  const [deadline] = useState(() => Date.now() + settings.countdownSeconds * 1000);
+  const [now, setNow] = useState(() => Date.now());
+  const left = secondsLeft(deadline, now);
+  const disparada = useRef(false);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 200);
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'active') setNow(Date.now());
+    });
+    return () => {
+      clearInterval(t);
+      sub.remove();
+    };
+  }, []);
 
   // Fondo pulsante y anillo que se reinicia en cada segundo (L-03).
   const latido = useSharedValue(0.1);
@@ -45,7 +62,11 @@ export default function Cuenta() {
   // (app)/_layout quita esta pantalla y deja solo /alert.
   useEffect(() => {
     if (left <= 0) {
-      startAlert(fixRef.current);
+      // La alerta se guarda en el teléfono antes de cualquier red (SOS-03); una sola vez.
+      if (!disparada.current) {
+        disparada.current = true;
+        startAlert(fixRef.current);
+      }
       return;
     }
     if (!silencioso) {
@@ -53,8 +74,6 @@ export default function Cuenta() {
       anillo.set(0);
       anillo.set(withTiming(1, { duration: 900 }));
     }
-    const t = setTimeout(() => setLeft((n) => n - 1), 1000);
-    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe reaccionar a `left`
   }, [left]);
 

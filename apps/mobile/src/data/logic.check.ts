@@ -1,5 +1,12 @@
 // Chequeo ejecutable sin framework: `node src/data/logic.check.ts`
-import { alertHeadline, initialScreen, toDeliveryView, uuidV4 } from './logic.ts';
+import {
+  alertHeadline,
+  initialScreen,
+  secondsLeft,
+  sosAvailability,
+  toDeliveryView,
+  uuidV4,
+} from './logic.ts';
 
 function eq(actual: unknown, expected: unknown, label: string) {
   if (actual !== expected) {
@@ -53,5 +60,18 @@ for (const e of API) {
 const id = uuidV4();
 eq(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id), true, 'uuid v4 formato');
 eq(uuidV4() !== id, true, 'uuid distinto');
+
+// Cuenta regresiva de deadline absoluto (01-13 Test 1; al volver a primer plano se recalcula con la hora real)
+eq(secondsLeft(10000, 5000), 5, 'faltan 5 s');
+eq(secondsLeft(10000, 9999), 1, 'falta 1 ms -> 1');
+eq(secondsLeft(10000, 10000), 0, 'vence');
+eq(secondsLeft(10000, 20000), 0, 'nunca negativo');
+
+// sosAvailability (01-13 Test 5)
+const c = { id: '1', nombre: 'A', telefono: '+573001234567' };
+eq(sosAvailability({ status: 'ready', items: [] }), 'sin-contactos', '0 contactos');
+eq(sosAvailability({ status: 'error', message: 'x' }), 'disponible', 'error de carga no bloquea');
+eq(sosAvailability({ status: 'loading' }), 'disponible', 'cargando no bloquea');
+eq(sosAvailability({ status: 'ready', items: [c, c] }), 'disponible', '2 contactos');
 
 console.log('data logic ok');

@@ -2,6 +2,7 @@
 // logic.check.ts). Firmas tomadas de los <behavior> de 01-13/01-14 para moverlas tal cual cuando haya Jest.
 import type { AuthStatus } from './auth.ts';
 import type { AlertEstado, DeliveryEstado } from './alerts.ts';
+import type { ContactList } from './contacts.ts';
 
 export type Pantalla = 'splash' | 'welcome' | 'login' | 'alert' | 'home';
 
@@ -83,4 +84,17 @@ export function uuidV4(rand: () => number = Math.random): string {
     const r = Math.floor(rand() * 16);
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
   });
+}
+
+/** Segundos que muestra la cuenta regresiva con deadline absoluto (no cuenta ticks: sobrevive a pausas). */
+export function secondsLeft(deadline: number, now: number): number {
+  return Math.max(0, Math.ceil((deadline - now) / 1000));
+}
+
+/**
+ * SOS deshabilitado solo con 0 contactos confirmados. Si la lista no se pudo cargar (sin red) el SOS sigue
+ * habilitado: la falta de red nunca bloquea el SOS (SOS-03).
+ */
+export function sosAvailability(list: ContactList): 'disponible' | 'sin-contactos' {
+  return list.status === 'ready' && list.items.length === 0 ? 'sin-contactos' : 'disponible';
 }

@@ -412,6 +412,35 @@ export function DeliveryStatus({
   );
 }
 
+/** Banner de error arriba del botón (UI-SPEC: credenciales, errores del servidor). */
+export function ErrorBanner({ texto }: { texto: string }) {
+  return (
+    <Reanimated.View entering={FadeInDown} accessibilityLiveRegion="polite" style={styles.errorBanner}>
+      <MaterialIcons name="error-outline" size={20} color={colors.accent} />
+      <AppText style={styles.flex}>{texto}</AppText>
+    </Reanimated.View>
+  );
+}
+
+/** Filas de carga pulsando (UI-SPEC: 3 filas skeleton, sin spinner a pantalla completa). */
+export function SkeletonRows({ n = 3 }: { n?: number }) {
+  const reducido = useReducedMotion();
+  const v = useSharedValue(1);
+  useEffect(() => {
+    if (reducido) return;
+    v.set(withRepeat(withTiming(0.4, { duration: 700 }), -1, true));
+    return () => cancelAnimation(v);
+  }, [reducido, v]);
+  const animado = useAnimatedStyle(() => ({ opacity: v.get() }));
+  return (
+    <View accessibilityLabel="Cargando" accessibilityRole="progressbar">
+      {Array.from({ length: n }, (_, i) => (
+        <Reanimated.View key={i} style={[styles.skeleton, animado]} />
+      ))}
+    </View>
+  );
+}
+
 export function DemoBanner() {
   const insets = useSafeAreaInsets();
   return (
@@ -543,6 +572,18 @@ const styles = StyleSheet.create({
   statusLine: { textAlign: 'right' },
   banner: { backgroundColor: colors.warningSoft, borderBottomWidth: 1, borderBottomColor: colors.warning },
   bannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.xs, paddingVertical: 6 },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    padding: space.md,
+    marginBottom: space.md,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.surface,
+  },
+  skeleton: { height: 72, borderRadius: radius.row, backgroundColor: colors.surface, marginBottom: space.sm },
   snackHost: { position: 'absolute', left: space.md, right: space.md, pointerEvents: 'box-none' },
   snack: {
     flexDirection: 'row',

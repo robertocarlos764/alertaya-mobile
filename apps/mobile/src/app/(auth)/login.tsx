@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 
-import { AppText, Button, entrada, Logo, Screen, TextField } from '@/components/ui';
+import { AppText, Button, entrada, ErrorBanner, Logo, Screen, TextField } from '@/components/ui';
 import { isEmail } from '@/demo/logic';
 import { useAuth } from '@/data';
 import { colors, space } from '@/theme';
@@ -13,18 +13,26 @@ export default function Login() {
   const [correo, setCorreo] = useState('');
   const [clave, setClave] = useState('');
   const [tocados, setTocados] = useState({ correo: false, clave: false });
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const errCorreo = isEmail(correo) ? undefined : 'Ingresa un correo válido.';
   const errClave = clave.length >= 6 ? undefined : 'Mínimo 6 caracteres.';
   const hayErrores = !!errCorreo || !!errClave;
 
   const enviar = () => {
+    if (enviando) return; // sin doble envío
     if (hayErrores) {
       setTocados({ correo: true, clave: true });
       return;
     }
-    // La contraseña solo se valida; nunca llega al store. La guardia de sesión lleva a Inicio.
-    login(correo.trim(), clave);
+    setEnviando(true);
+    setError(null);
+    // Con éxito la guardia de sesión lleva a Inicio y esta pantalla se desmonta.
+    login(correo.trim(), clave).catch((e: Error) => {
+      setError(e.message);
+      setEnviando(false);
+    });
   };
 
   return (
@@ -47,6 +55,7 @@ export default function Login() {
         autoComplete="email"
         autoCapitalize="none"
         autoCorrect={false}
+        editable={!enviando}
         value={correo}
         onChangeText={setCorreo}
         onBlur={() => setTocados((t) => ({ ...t, correo: true }))}
@@ -60,6 +69,7 @@ export default function Login() {
         secure
         autoComplete="password"
         autoCapitalize="none"
+        editable={!enviando}
         value={clave}
         onChangeText={setClave}
         onBlur={() => setTocados((t) => ({ ...t, clave: true }))}
@@ -68,7 +78,8 @@ export default function Login() {
       </Reanimated.View>
 
       <Reanimated.View entering={entrada(3)} style={styles.cta}>
-        <Button title="Iniciar sesión" onPress={enviar} disabled={hayErrores} />
+        {error ? <ErrorBanner texto={error} /> : null}
+        <Button title="Iniciar sesión" onPress={enviar} disabled={hayErrores} loading={enviando} />
       </Reanimated.View>
 
       <Reanimated.View entering={entrada(4)}>

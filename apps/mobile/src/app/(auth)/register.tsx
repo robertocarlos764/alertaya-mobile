@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 
-import { AppText, Button, entrada, Screen, TextField } from '@/components/ui';
+import { AppText, Button, entrada, ErrorBanner, Logo, Screen, TextField } from '@/components/ui';
 import { isEmail, normalizePhone } from '@/demo/logic';
 import { useAuth } from '@/data';
 import { colors, space } from '@/theme';
@@ -16,6 +16,9 @@ export default function Register() {
   const [telefono, setTelefono] = useState('');
   const [clave, setClave] = useState('');
   const [tocados, setTocados] = useState({ nombre: false, correo: false, telefono: false, clave: false });
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [revisaCorreo, setRevisaCorreo] = useState(false);
 
   const tel = normalizePhone(telefono);
   const errores = {
@@ -33,9 +36,38 @@ export default function Register() {
       setTocados({ nombre: true, correo: true, telefono: true, clave: true });
       return;
     }
-    // La contraseña solo se valida, nunca se guarda. La guardia de sesión lleva a Inicio.
-    register({ nombre: nombre.trim(), correo: correo.trim(), telefono: tel, password: clave });
+    if (enviando) return; // sin doble envío
+    setEnviando(true);
+    setError(null);
+    // Con sesión inmediata la guardia lleva a Inicio; sin sesión ("Confirm email") se pide revisar el correo.
+    register({ nombre: nombre.trim(), correo: correo.trim(), telefono: tel, password: clave }).then(
+      ({ needsEmailConfirmation }) => {
+        if (needsEmailConfirmation) setRevisaCorreo(true);
+        setEnviando(false);
+      },
+      (e: Error) => {
+        setError(e.message);
+        setEnviando(false);
+      },
+    );
   };
+
+  if (revisaCorreo) {
+    return (
+      <Screen edges={['bottom']}>
+        <Reanimated.View entering={entrada(0)} style={styles.revisa}>
+          <Logo icon="mark-email-unread" />
+          <AppText variant="heading" style={styles.centrado}>
+            Revisa tu correo
+          </AppText>
+          <AppText color={colors.textMuted} style={styles.centrado}>
+            Te enviamos un enlace para confirmar tu cuenta. Después vuelve e inicia sesión.
+          </AppText>
+        </Reanimated.View>
+        <Button title="Ir a iniciar sesión" onPress={() => router.replace('/login')} />
+      </Screen>
+    );
+  }
 
   return (
     <Screen scroll edges={['bottom']}>
@@ -60,6 +92,7 @@ export default function Register() {
         placeholder="Ej: María García"
         autoComplete="name"
         value={nombre}
+        editable={!enviando}
         onChangeText={setNombre}
         onBlur={tocar('nombre')}
         error={ver('nombre')}
@@ -74,6 +107,7 @@ export default function Register() {
         autoCapitalize="none"
         autoCorrect={false}
         value={correo}
+        editable={!enviando}
         onChangeText={setCorreo}
         onBlur={tocar('correo')}
         error={ver('correo')}
@@ -87,6 +121,7 @@ export default function Register() {
         keyboardType="phone-pad"
         maxLength={12}
         value={telefono}
+        editable={!enviando}
         onChangeText={setTelefono}
         onBlur={tocar('telefono')}
         error={ver('telefono')}
@@ -100,6 +135,7 @@ export default function Register() {
         autoComplete="new-password"
         autoCapitalize="none"
         value={clave}
+        editable={!enviando}
         onChangeText={setClave}
         onBlur={tocar('clave')}
         error={ver('clave')}
@@ -107,7 +143,8 @@ export default function Register() {
       </Reanimated.View>
 
       <Reanimated.View entering={entrada(5)} style={styles.cta}>
-        <Button title="Crear cuenta" onPress={enviar} disabled={hayErrores} />
+        {error ? <ErrorBanner texto={error} /> : null}
+        <Button title="Crear cuenta" onPress={enviar} disabled={hayErrores} loading={enviando} />
       </Reanimated.View>
     </Screen>
   );
@@ -117,4 +154,6 @@ const styles = StyleSheet.create({
   back: { width: 48, height: 48, justifyContent: 'center', marginLeft: -space.sm },
   subtitle: { marginTop: space.xs, marginBottom: space.lg },
   cta: { marginTop: space.md, marginBottom: space.xl },
+  revisa: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.md },
+  centrado: { textAlign: 'center' },
 });

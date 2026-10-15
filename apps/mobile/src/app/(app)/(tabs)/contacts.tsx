@@ -4,13 +4,23 @@ import { router } from 'expo-router';
 import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Reanimated, { FadeInDown, FadeOutLeft, LinearTransition } from 'react-native-reanimated';
 
-import { Avatar, AppText, Button, entrada, Header, PressableScale, Screen, toast } from '@/components/ui';
+import {
+  Avatar,
+  AppText,
+  Button,
+  entrada,
+  Header,
+  PressableScale,
+  Screen,
+  SkeletonRows,
+  toast,
+} from '@/components/ui';
 import { formatPhone } from '@/demo/logic';
 import { useContacts } from '@/data';
 import { colors, gradients, radius, space } from '@/theme';
 
 export default function Contactos() {
-  const { list, remove } = useContacts();
+  const { list, remove, reload } = useContacts();
   const contacts = list.status === 'ready' ? list.items : [];
 
   const eliminar = (id: string, nombre: string) => {
@@ -47,7 +57,24 @@ export default function Contactos() {
         ) : null}
       </Reanimated.View>
 
-      {contacts.length === 0 ? (
+      {list.status === 'loading' ? (
+        <View style={styles.list}>
+          <SkeletonRows />
+        </View>
+      ) : list.status === 'error' ? (
+        <Reanimated.View entering={entrada(2)} style={styles.empty}>
+          <View style={styles.emptyIcon}>
+            <MaterialIcons name="cloud-off" size={40} color={colors.warning} />
+          </View>
+          <AppText variant="heading" style={styles.centrado}>
+            No pudimos cargar tus contactos.
+          </AppText>
+          <AppText color={colors.textMuted} style={[styles.emptyBody, styles.centrado]}>
+            {list.message}
+          </AppText>
+          <Button title="Reintentar" variant="outline" icon="refresh" onPress={reload} />
+        </Reanimated.View>
+      ) : contacts.length === 0 ? (
         <Reanimated.View entering={entrada(2)} style={styles.empty}>
           <View style={styles.emptyIcon}>
             <LinearGradient colors={gradients.cool} style={styles.emptyCircle}>

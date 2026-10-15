@@ -4,17 +4,34 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 
-import { Avatar, AppText, Button, Chip, entrada, Screen, TextField, toast } from '@/components/ui';
+import { Avatar, AppText, Button, Chip, entrada, Screen, SkeletonRows, TextField, toast } from '@/components/ui';
 import { normalizePhone } from '@/demo/logic';
-import { useContacts } from '@/data';
+import { useContacts, type Contact } from '@/data';
 import { colors, space } from '@/theme';
 
 const RELACIONES = ['Mamá', 'Papá', 'Pareja', 'Hermano/a', 'Amigo/a', 'Otro'];
 
-// Compartido por "nuevo" y "editar" (CONT-01 en UI).
+// Compartido por "nuevo" y "editar" (CONT-01 en UI). Espera la lista: el formulario se precarga una vez
+// y el duplicado de teléfono se valida contra ella.
 export function ContactForm({ id }: { id?: string }) {
-  const { list, create, update } = useContacts();
-  const contacts = list.status === 'ready' ? list.items : [];
+  const { list, reload } = useContacts();
+  if (list.status === 'ready') return <Formulario id={id} contacts={list.items} />;
+  return (
+    <Screen edges={['bottom']}>
+      {list.status === 'loading' ? (
+        <SkeletonRows />
+      ) : (
+        <View style={styles.cargaError}>
+          <AppText style={styles.centrado}>No pudimos cargar tus contactos.</AppText>
+          <Button title="Reintentar" variant="outline" icon="refresh" onPress={reload} />
+        </View>
+      )}
+    </Screen>
+  );
+}
+
+function Formulario({ id, contacts }: { id?: string; contacts: Contact[] }) {
+  const { create, update } = useContacts();
   const existente = id ? contacts.find((c) => c.id === id) : undefined;
   const falta = !!id && !existente;
 
@@ -23,6 +40,7 @@ export function ContactForm({ id }: { id?: string }) {
   const [telefono, setTelefono] = useState(existente ? existente.telefono.replace('+57', '') : '');
   const [relacion, setRelacion] = useState<string | undefined>(existente?.relacion);
   const [tocados, setTocados] = useState({ nombre: false, telefono: false });
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     if (falta) router.back();
@@ -42,15 +60,23 @@ export function ContactForm({ id }: { id?: string }) {
   const hayErrores = !!errores.nombre || !!errores.telefono;
 
   const guardar = () => {
+    if (guardando) return; // sin doble envío
     if (hayErrores || !tel) {
       setTocados({ nombre: true, telefono: true });
       return;
     }
     const datos = { nombre: nombre.trim(), telefono: tel, relacion };
-    if (existente) update({ ...datos, id: existente.id });
-    else create(datos);
-    toast(existente ? 'Cambios guardados.' : `${datos.nombre} agregado.`);
-    router.back();
+    setGuardando(true);
+    (existente ? update({ ...datos, id: existente.id }) : create(datos)).then(
+      () => {
+        toast(existente ? 'Cambios guardados.' : `${datos.nombre} agregado.`);
+        router.back();
+      },
+      (e: Error) => {
+        setGuardando(false);
+        toast(e.message || 'No se pudo guardar el contacto. Intenta de nuevo.');
+      },
+    );
   };
 
   return (
@@ -79,6 +105,7 @@ export function ContactForm({ id }: { id?: string }) {
         label="NOMBRE COMPLETO"
         placeholder="Ej: María García"
         autoComplete="name"
+        editable={!guardando}
         value={nombre}
         onChangeText={setNombre}
         onBlur={() => setTocados((t) => ({ ...t, nombre: true }))}
@@ -90,6 +117,7 @@ export function ContactForm({ id }: { id?: string }) {
         placeholder="300 123 4567"
         keyboardType="phone-pad"
         maxLength={12}
+        editable={!guardando}
         value={telefono}
         onChangeText={setTelefono}
         onBlur={() => setTocados((t) => ({ ...t, telefono: true }))}
@@ -109,7 +137,7 @@ export function ContactForm({ id }: { id?: string }) {
       </Reanimated.View>
 
       <Reanimated.View entering={entrada(4)} style={styles.cta}>
-        <Button title="Guardar contacto" onPress={guardar} disabled={hayErrores} />
+        <Button title="Guardar contacto" onPress={guardar} disabled={hayErrores} loading={guardando} />
       </Reanimated.View>
       {!existente ? (
         <AppText variant="meta" color={colors.textMuted} style={styles.note}>
@@ -128,5 +156,7 @@ const styles = StyleSheet.create({
   fieldLabel: { marginBottom: space.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   cta: { marginTop: space.lg, marginBottom: space.xl },
+  cargaError: { flex: 1, justifyContent: 'center', gap: space.md },
+  centrado: { textAlign: 'center' },
   note: { textAlign: 'center', marginTop: -space.sm, marginBottom: space.lg },
 });

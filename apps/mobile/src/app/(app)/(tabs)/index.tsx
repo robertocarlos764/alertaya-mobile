@@ -7,15 +7,18 @@ import Reanimated from 'react-native-reanimated';
 import { HoldButton } from '@/components/HoldButton';
 import { AppText, Button, Card, entrada, Header, Screen, toast } from '@/components/ui';
 import { useContacts } from '@/data';
+import { sosAvailability } from '@/data/logic';
 import { useLocation, type EstadoUbicacion } from '@/lib/useLocation';
 import { colors, radius, space } from '@/theme';
 
 export default function Inicio() {
   const { list } = useContacts();
-  const contacts = list.status === 'ready' ? list.items : [];
+
   const { state, fix, request } = useLocation();
   const [presionando, setPresionando] = useState(false);
-  const sinContactos = contacts.length === 0;
+  // Sin red la lista puede no cargar: eso nunca bloquea el SOS (solo 0 contactos confirmados).
+  const sinContactos = sosAvailability(list) === 'sin-contactos';
+  const n = list.status === 'ready' ? list.items.length : 0;
 
   return (
     <Screen edges={[]}>
@@ -50,9 +53,16 @@ export default function Inicio() {
               <Button title="Agregar contacto" variant="cool" onPress={() => router.push('/contacts/new')} />
             </>
           ) : (
-            <AppText color={presionando ? colors.text : colors.textMuted} style={styles.centerText}>
-              {presionando ? 'Sigue presionando…' : 'Mantén presionado 2 segundos para activar.'}
-            </AppText>
+            <>
+              <AppText color={presionando ? colors.text : colors.textMuted} style={styles.centerText}>
+                {presionando ? 'Sigue presionando…' : 'Mantén presionado 2 segundos para activar.'}
+              </AppText>
+              {n > 0 ? (
+                <AppText variant="meta" color={colors.textMuted} style={styles.centerText}>
+                  {n === 1 ? 'Avisaremos a 1 contacto' : `Avisaremos a ${n} contactos`}
+                </AppText>
+              ) : null}
+            </>
           )}
         </Reanimated.View>
       </Reanimated.View>
