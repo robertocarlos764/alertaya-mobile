@@ -1,4 +1,4 @@
-namespace AlertaYA.Api.Domain;
+namespace AlertaYA.Domain;
 
 /// <summary>
 /// Máquina de estados de <c>alerts</c>. Es el ÚNICO lugar donde se validan

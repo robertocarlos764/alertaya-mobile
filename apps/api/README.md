@@ -15,19 +15,21 @@ Sigue la especificación [`Spec_Backend_App_Usuario.md`](./Spec_Backend_App_Usua
 - **Supabase Auth** emite los JWT (HS256); el backend solo los **valida** en cada request (`Microsoft.AspNetCore.Authentication.JwtBearer`)
 
 ```
-AlertaYA.sln
+AlertaYA.sln                 Api -> Infrastructure -> Application -> Domain
+AlertaYA.Domain/             AlertValues, AlertStateMachine, GeoPointExtensions, Entities/ (sin I/O)
+AlertaYA.Application/        Abstractions/IApplicationDbContext (puerto de persistencia)
+AlertaYA.Infrastructure/     Persistence/AppDbContext (EF Core + Npgsql, mapeo Fluent API)
 AlertaYA.Api/
   Controllers/        ProfilesController, EmergencyContactsController, AlertsController
-  Data/AppDbContext   Mapeo Fluent API a las tablas existentes
-  Domain/             AlertValues (constantes) + AlertStateMachine (máquina de estados)
-  Extensions/         Extracción del user_id del JWT y helpers geo
-  Migrations/         Única migración: client_generated_id en alerts
-  Models/Entities/    Entidades EF (Profile, EmergencyContact, Alert, AlertLocation, VerificationLog)
+  Extensions/         Extracción del user_id del JWT
   Models/DTOs/        Requests/Responses
   Options/            Opciones fuertemente tipadas (Jwt, SmsFallback)
   Services/           Cola Channel<T>, verificación heurística, notificaciones, auth SMS
   Services/Background VerificationWorker + NotificationWorker (BackgroundService)
-  Program.cs          JWT, DI, EF Core, workers
+  Program.cs          JWT, DI, EF Core, workers, GET /health
+tests/
+  AlertaYA.Domain.Tests/          Reglas puras (máquina de estados)
+  AlertaYA.Api.IntegrationTests/  WebApplicationFactory (prueba de humo Category=Smoke)
 ```
 
 ---
@@ -66,23 +68,9 @@ Copia `AlertaYA.Api/appsettings.Example.json` → `AlertaYA.Api/appsettings.json
 
 Las tablas (`profiles`, `emergency_contacts`, `alerts`, `alert_locations`, `verification_logs`, y las de fases futuras `officers`, `cais`, etc.) **ya existen** en Supabase. El backend las mapea con Fluent API y **no genera migraciones** que intenten recrearlas.
 
-### Migración única: `client_generated_id`
+### Esquema: `supabase/migrations`
 
-La especificación exige idempotencia en `POST /api/alerts` mediante un `clientGeneratedId` que genera el cliente, con índice único `(user_id, client_generated_id)` en `alerts`. Como no había SQL de referencia para confirmar si esa columna ya existe, se entregó una migración que la agrega:
-
-- **Opcion A (CLI):**
-  ```bash
-  dotnet tool install -g dotnet-ef
-  dotnet ef database update --project AlertaYA.Api
-  ```
-- **Opcion B (editor SQL de Supabase):**
-  ```sql
-  ALTER TABLE alerts ADD COLUMN IF NOT EXISTS client_generated_id uuid;
-  CREATE UNIQUE INDEX IF NOT EXISTS IX_alerts_user_id_client_generated_id
-    ON alerts (user_id, client_generated_id);
-  ```
-
-> ⚠️ **Si la columna ya existe** en tu base, usa la opción B (con `IF NOT EXISTS`); `dotnet ef database update` fallaría con "column already exists".
+El esquema lo manda `supabase/migrations` (SQL versionado), incluida la columna `client_generated_id` con su índice único `(user_id, client_generated_id)` para la idempotencia de `POST /api/alerts`. EF Core **no** genera ni aplica migraciones (la BD no tiene `__EFMigrationsHistory`): no uses `dotnet ef database update`.
 
 ---
 
@@ -91,6 +79,7 @@ La especificación exige idempotencia en `POST /api/alerts` mediante un `clientG
 ```bash
 dotnet build AlertaYA.sln
 dotnet run --project AlertaYA.Api        # escucha en http://localhost:5000
+dotnet test AlertaYA.sln --filter "Category!=Integration"   # humo + dominio, sin BD
 ```
 
 En `Development` se habilita Swagger en `/swagger`.

@@ -1,4 +1,4 @@
-using AlertaYA.Api.Models.Entities;
+using AlertaYA.Domain.Entities;
 
 namespace AlertaYA.Api.Models.DTOs;
 

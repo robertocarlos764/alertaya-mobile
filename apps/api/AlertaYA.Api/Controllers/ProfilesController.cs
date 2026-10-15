@@ -1,6 +1,6 @@
-using AlertaYA.Api.Data;
 using AlertaYA.Api.Extensions;
 using AlertaYA.Api.Models.DTOs;
+using AlertaYA.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

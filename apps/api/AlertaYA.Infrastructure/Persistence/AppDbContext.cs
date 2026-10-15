@@ -1,16 +1,17 @@
-using AlertaYA.Api.Models.Entities;
+using AlertaYA.Application.Abstractions;
+using AlertaYA.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
-namespace AlertaYA.Api.Data;
+namespace AlertaYA.Infrastructure.Persistence;
 
 /// <summary>
 /// Mapea las tablas EXISTENTES de Supabase (sección 4 de la especificación).
-/// No se generan migraciones que creen tablas: el esquema ya existe y lo único que se
-/// agrega además del esquema original es la columna <c>client_generated_id</c> en
-/// <c>alerts</c> (ver migración AddClientGeneratedIdToAlerts), necesaria para la
-/// idempotencia de la sección 6.
+/// El esquema lo manda <c>supabase/migrations</c> (SQL versionado): EF Core no genera ni
+/// aplica migraciones aquí (la BD no tiene <c>__EFMigrationsHistory</c>). Eso incluye la
+/// columna <c>client_generated_id</c> de <c>alerts</c> para la idempotencia de la sección 6.
 /// </summary>
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IApplicationDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -22,6 +23,10 @@ public class AppDbContext : DbContext
     public DbSet<Alert> Alerts => Set<Alert>();
     public DbSet<AlertLocation> AlertLocations => Set<AlertLocation>();
     public DbSet<VerificationLog> VerificationLogs => Set<VerificationLog>();
+
+    /// <summary>SqlState 23505 = unique_violation de PostgreSQL.</summary>
+    public bool EsViolacionDeUnicidad(DbUpdateException ex)
+        => ex.InnerException is PostgresException pg && pg.SqlState == PostgresErrorCodes.UniqueViolation;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

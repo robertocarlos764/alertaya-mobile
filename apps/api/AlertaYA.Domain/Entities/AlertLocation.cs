@@ -1,6 +1,6 @@
 using NetTopologySuite.Geometries;
 
-namespace AlertaYA.Api.Models.Entities;
+namespace AlertaYA.Domain.Entities;
 
 public class AlertLocation
 {
@@ -8,6 +8,6 @@ public class AlertLocation
     public Guid AlertId { get; set; }
     public Point Ubicacion { get; set; } = null!;
     public decimal? PrecisionMetros { get; set; }
-    public string Fuente { get; set; } = Domain.FuenteUbicacion.Gps;
+    public string Fuente { get; set; } = FuenteUbicacion.Gps;
     public DateTimeOffset? CreadoEn { get; set; }
 }

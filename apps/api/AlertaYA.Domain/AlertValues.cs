@@ -1,4 +1,4 @@
-namespace AlertaYA.Api.Domain;
+namespace AlertaYA.Domain;
 
 public static class AlertEstados
 {

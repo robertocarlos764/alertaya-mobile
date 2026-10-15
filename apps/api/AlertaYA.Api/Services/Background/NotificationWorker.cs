@@ -1,5 +1,5 @@
-using AlertaYA.Api.Data;
 using AlertaYA.Api.Services.Abstractions;
+using AlertaYA.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlertaYA.Api.Services.Background;

@@ -1,4 +1,4 @@
-namespace AlertaYA.Api.Models.Entities;
+namespace AlertaYA.Domain.Entities;
 
 public class Profile
 {

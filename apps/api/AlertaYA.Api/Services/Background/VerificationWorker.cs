@@ -1,7 +1,7 @@
-using AlertaYA.Api.Data;
-using AlertaYA.Api.Domain;
-using AlertaYA.Api.Models.Entities;
 using AlertaYA.Api.Services.Abstractions;
+using AlertaYA.Domain;
+using AlertaYA.Domain.Entities;
+using AlertaYA.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlertaYA.Api.Services.Background;

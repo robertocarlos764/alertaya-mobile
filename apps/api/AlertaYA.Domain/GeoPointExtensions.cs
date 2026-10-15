@@ -1,6 +1,6 @@
 using NetTopologySuite.Geometries;
 
-namespace AlertaYA.Api.Extensions;
+namespace AlertaYA.Domain;
 
 /// <summary>
 /// Conversión entre lat/lon y <c>Point</c> de NetTopologySuite, respetando la convención de

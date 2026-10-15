@@ -1,12 +1,12 @@
 using NetTopologySuite.Geometries;
 
-namespace AlertaYA.Api.Models.Entities;
+namespace AlertaYA.Domain.Entities;
 
 public class Alert
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public string Estado { get; set; } = Domain.AlertEstados.Pendiente;
+    public string Estado { get; set; } = AlertEstados.Pendiente;
     public string CanalActivacion { get; set; } = string.Empty;
     public string? NivelPrioridadIa { get; set; }
     public Point? Ubicacion { get; set; }

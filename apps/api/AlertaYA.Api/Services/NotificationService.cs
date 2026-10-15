@@ -1,5 +1,5 @@
-using AlertaYA.Api.Models.Entities;
 using AlertaYA.Api.Services.Abstractions;
+using AlertaYA.Domain.Entities;
 
 namespace AlertaYA.Api.Services;
 

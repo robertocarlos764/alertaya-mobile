@@ -1,9 +1,10 @@
 using System.Text;
-using AlertaYA.Api.Data;
 using AlertaYA.Api.Options;
 using AlertaYA.Api.Services;
 using AlertaYA.Api.Services.Abstractions;
 using AlertaYA.Api.Services.Background;
+using AlertaYA.Application.Abstractions;
+using AlertaYA.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +24,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("Default");
     options.UseNpgsql(connectionString, npgsql => npgsql.UseNetTopologySuite());
 });
+
+// Puerto de persistencia de Application: misma instancia scoped que AppDbContext.
+builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+
+// GET /health anónimo: responde "Healthy" sin detalles y sin tocar la BD.
+builder.Services.AddHealthChecks();
 
 // Opciones fuertemente tipadas.
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
@@ -86,6 +93,10 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();
+
+// Expuesto para WebApplicationFactory<Program> en las pruebas de integración.
+public partial class Program;
