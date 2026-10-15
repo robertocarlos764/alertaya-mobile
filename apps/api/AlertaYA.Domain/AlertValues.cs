@@ -8,10 +8,11 @@ public static class AlertEstados
     public const string Escalada = "escalada";
     public const string Atendida = "atendida";
     public const string Descartada = "descartada";
+    public const string Finalizada = "finalizada";
 
     public static readonly string[] Todos =
     {
-        Pendiente, Activa, Verificando, Escalada, Atendida, Descartada,
+        Pendiente, Activa, Verificando, Escalada, Atendida, Descartada, Finalizada,
     };
 
     public static bool EsValido(string? valor) => valor is not null && Todos.Contains(valor);

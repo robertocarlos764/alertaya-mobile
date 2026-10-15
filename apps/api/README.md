@@ -115,7 +115,7 @@ Todos requieren `Authorization: Bearer {jwt}` salvo el marcado como público.
 | POST | `/api/alerts/sms-fallback` | **Público (sin JWT).** Payload ya parseado: `userId`, `lat`, `lon`, `timestamp`, `hash` (HMAC), opcionales `clientGeneratedId`, `canalActivacion`. Rechaza hash inválido o expirado |
 
 ### Estados de alerta
-`pendiente` → `activa` | `descartada` → `activa → verificando` → `verificando → escalada | atendida | descartada` → `escalada → atendida | descartada`. Cualquier otra transición se rechaza con error claro. La validación vive en `Domain/AlertStateMachine.cs`.
+`pendiente` → `activa` | `descartada` | `finalizada`; `activa` → `verificando` | `finalizada`; `verificando` → `escalada` | `atendida` | `descartada` | `finalizada`; `escalada` → `atendida` | `descartada` | `finalizada`. `atendida`, `descartada` y `finalizada` ("Estoy a salvo", D-09) son terminales. Cualquier otra transición se rechaza con error claro. La validación vive en `AlertaYA.Domain/AlertStateMachine.cs`.
 
 ---
 

@@ -4,11 +4,14 @@ namespace AlertaYA.Domain;
 /// Máquina de estados de <c>alerts</c>. Es el ÚNICO lugar donde se validan
 /// las transiciones de estado (sección 8 de la especificación):
 ///
-///   pendiente  → activa | descartada
-///   activa     → verificando
-///   verificando → escalada | atendida | descartada
-///   escalada   → atendida | descartada
-///   atendida / descartada  → (estados terminales)
+///   pendiente   → activa | descartada | finalizada
+///   activa      → verificando | finalizada
+///   verificando → escalada | atendida | descartada | finalizada
+///   escalada    → atendida | descartada | finalizada
+///   atendida / descartada / finalizada → (estados terminales)
+///
+/// <c>finalizada</c> es "Estoy a salvo" (D-09): la persona cierra su propia alerta desde
+/// cualquier estado no terminal.
 ///
 /// Toda transición que no esté en esta tabla debe ser rechazada por el
 /// endpoint correspondiente con un error claro.
@@ -18,12 +21,13 @@ public static class AlertStateMachine
     private static readonly IReadOnlyDictionary<string, string[]> TransicionesValidas =
         new Dictionary<string, string[]>
         {
-            [AlertEstados.Pendiente] = new[] { AlertEstados.Activa, AlertEstados.Descartada },
-            [AlertEstados.Activa] = new[] { AlertEstados.Verificando },
-            [AlertEstados.Verificando] = new[] { AlertEstados.Escalada, AlertEstados.Atendida, AlertEstados.Descartada },
-            [AlertEstados.Escalada] = new[] { AlertEstados.Atendida, AlertEstados.Descartada },
+            [AlertEstados.Pendiente] = new[] { AlertEstados.Activa, AlertEstados.Descartada, AlertEstados.Finalizada },
+            [AlertEstados.Activa] = new[] { AlertEstados.Verificando, AlertEstados.Finalizada },
+            [AlertEstados.Verificando] = new[] { AlertEstados.Escalada, AlertEstados.Atendida, AlertEstados.Descartada, AlertEstados.Finalizada },
+            [AlertEstados.Escalada] = new[] { AlertEstados.Atendida, AlertEstados.Descartada, AlertEstados.Finalizada },
             [AlertEstados.Atendida] = Array.Empty<string>(),
             [AlertEstados.Descartada] = Array.Empty<string>(),
+            [AlertEstados.Finalizada] = Array.Empty<string>(),
         };
 
     /// <summary>Devuelve true si la transición actual → nuevo está permitida por la máquina de estados.</summary>
