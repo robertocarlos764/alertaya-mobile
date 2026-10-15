@@ -5,16 +5,19 @@ import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 
 import { HoldButton } from '@/components/HoldButton';
-import { AppText, Button, Card, entrada, Header, Screen, toast } from '@/components/ui';
+import { AppText, Button, Card, entrada, Header, PressableScale, Screen, toast } from '@/components/ui';
 import { useContacts } from '@/data';
+import { placeLine } from '@/data/geo';
 import { sosAvailability } from '@/data/logic';
 import { useLocation, type EstadoUbicacion } from '@/lib/useLocation';
+import { usePlaceName } from '@/lib/usePlaceName';
 import { colors, radius, space } from '@/theme';
 
 export default function Inicio() {
   const { list } = useContacts();
 
   const { state, fix, request } = useLocation();
+  const lugar = usePlaceName(fix);
   const [presionando, setPresionando] = useState(false);
   // Sin red la lista puede no cargar: eso nunca bloquea el SOS (solo 0 contactos confirmados).
   const sinContactos = sosAvailability(list) === 'sin-contactos';
@@ -70,18 +73,30 @@ export default function Inicio() {
       <View style={styles.flex} />
 
       <Reanimated.View entering={entrada(3)}>
-      <Card style={styles.card}>
-        <View style={styles.mapIcon}>
-          <MaterialIcons name="map" size={24} color={colors.textMuted} />
-        </View>
-        <View style={styles.cardText}>
-          <AppText variant="label" color={colors.textMuted}>
-            UBICACIÓN ACTUAL
-          </AppText>
-          <LineaUbicacion state={state} accuracy={fix?.accuracy ?? null} request={request} />
-        </View>
-        <MaterialIcons name="my-location" size={24} color={colors.textMuted} />
-      </Card>
+        {/* Toda la tarjeta abre el mapa de tu ubicación real (/location). */}
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel="Ubicación actual. Ver en el mapa"
+          onPress={() => router.push('/location')}
+        >
+          <Card style={styles.card}>
+            <View style={styles.mapIcon}>
+              <MaterialIcons name="map" size={24} color={colors.accent} />
+            </View>
+            <View style={styles.cardText}>
+              <AppText variant="label" color={colors.textMuted}>
+                UBICACIÓN ACTUAL
+              </AppText>
+              <LineaUbicacion state={state} accuracy={fix?.accuracy ?? null} request={request} />
+              {fix ? (
+                <AppText variant="meta" color={colors.textMuted} numberOfLines={2}>
+                  {placeLine(lugar.name, lugar.status, fix)}
+                </AppText>
+              ) : null}
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color={colors.textMuted} />
+          </Card>
+        </PressableScale>
       </Reanimated.View>
     </Screen>
   );
@@ -155,7 +170,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radius.row,
-    backgroundColor: colors.glass,
+    backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
   },

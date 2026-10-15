@@ -110,12 +110,6 @@ export function trailPath(
   return { d: xy.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' '), xy };
 }
 
-/** URL del mapa embebido de OpenStreetMap. Solo números con toFixed: nada inyectable en el iframe. */
-export function osmEmbedUrl(lat: number, lon: number, delta = 0.004): string {
-  const f = (n: number) => n.toFixed(5);
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${f(lon - delta)},${f(lat - delta)},${f(lon + delta)},${f(lat + delta)}&layer=mapnik&marker=${f(lat)},${f(lon)}`;
-}
-
 export function mapsUrl(lat: number, lon: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
 }

@@ -9,7 +9,6 @@ import {
   initials,
   mapsUrl,
   normalizePhone,
-  osmEmbedUrl,
   sanitizeSettings,
   simulatedStatus,
   trailPath,
@@ -76,9 +75,6 @@ eq(dos.d.includes(' L'), true, 'trailPath contiene L');
 eq(dos.xy[1].y < dos.xy[0].y, true, 'trailPath norte arriba');
 
 // URLs
-const osm = osmEmbedUrl(4.65, -74.05);
-eq(osm.includes('bbox='), true, 'osm bbox');
-eq(osm.includes('marker=4.65000,-74.05000'), true, 'osm marker 5 decimales');
 eq(mapsUrl(4.65, -74.05), 'https://www.google.com/maps/search/?api=1&query=4.65,-74.05', 'mapsUrl');
 
 // deliveryRows

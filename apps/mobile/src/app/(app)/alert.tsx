@@ -1,12 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
-import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Linking, Share, StyleSheet, View } from 'react-native';
 import Reanimated, { FadeIn } from 'react-native-reanimated';
 
 import { HoldButton } from '@/components/HoldButton';
+import { LiveMap } from '@/components/LiveMap';
 import {
   Avatar,
   AppText,
@@ -139,13 +139,22 @@ export default function Alerta() {
           UBICACIÓN QUE VEN TUS CONTACTOS
         </AppText>
         {location ? (
-          <Card style={styles.ubicacion}>
-            <MaterialIcons name="place" size={32} color={colors.accent} />
-            <AppText color={vieja ? colors.warning : colors.text} style={styles.flex}>
+          <>
+            {/* UI-SPEC punto 4: mini mapa 192, no interactivo, centrado en el último punto confirmado; sigue
+                cada punto real nuevo. Nunca coordenadas numéricas. */}
+            <LiveMap
+              point={location}
+              trail={current.trail}
+              live
+              height={192}
+              label="Mapa con la ubicación que ven tus contactos"
+            />
+            <AppText color={vieja ? colors.warning : colors.textMuted} style={styles.mapaPie}>
               {location.precisionMetros == null ? '' : `±${location.precisionMetros} m · `}
               {ago(now - location.capturadaEn)}
+              {vieja ? ' — sin actualizar' : ''}
             </AppText>
-          </Card>
+          </>
         ) : (
           <Card style={styles.pendiente}>
             <MaterialIcons name="location-off" size={32} color={colors.warning} />
@@ -193,16 +202,6 @@ export default function Alerta() {
       ))}
 
       <Reanimated.View entering={entrada(4 + current.contactos.length)}>
-        {IS_DEMO ? (
-          <View style={styles.bloque}>
-            <Button
-              title="Ver lo que ven tus contactos"
-              icon="visibility"
-              onPress={() => router.push('/tracking')}
-            />
-          </View>
-        ) : null}
-
         <View style={styles.bloque}>
           <Button
             title={compartirTitulo}
@@ -290,7 +289,7 @@ const styles = StyleSheet.create({
   },
   subtitulo: { marginTop: space.xs },
   seccion: { marginTop: space.lg, marginBottom: space.sm },
-  ubicacion: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  mapaPie: { marginTop: space.sm },
   pendiente: {
     height: 192,
     alignItems: 'center',
