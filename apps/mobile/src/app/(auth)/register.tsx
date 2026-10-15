@@ -6,11 +6,11 @@ import Reanimated from 'react-native-reanimated';
 
 import { AppText, Button, entrada, Screen, TextField } from '@/components/ui';
 import { isEmail, normalizePhone } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useAuth } from '@/data';
 import { colors, space } from '@/theme';
 
 export default function Register() {
-  const { register } = useDemo();
+  const { register } = useAuth();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -34,7 +34,7 @@ export default function Register() {
       return;
     }
     // La contraseña solo se valida, nunca se guarda. La guardia de sesión lleva a Inicio.
-    register({ nombre: nombre.trim(), correo: correo.trim(), telefono: tel });
+    register({ nombre: nombre.trim(), correo: correo.trim(), telefono: tel, password: clave });
   };
 
   return (

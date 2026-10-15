@@ -5,11 +5,11 @@ import Reanimated from 'react-native-reanimated';
 
 import { AppText, Button, entrada, Logo, Screen, TextField } from '@/components/ui';
 import { isEmail } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useAuth } from '@/data';
 import { colors, space } from '@/theme';
 
 export default function Login() {
-  const { login } = useDemo();
+  const { login } = useAuth();
   const [correo, setCorreo] = useState('');
   const [clave, setClave] = useState('');
   const [tocados, setTocados] = useState({ correo: false, clave: false });
@@ -24,7 +24,7 @@ export default function Login() {
       return;
     }
     // La contraseña solo se valida; nunca llega al store. La guardia de sesión lleva a Inicio.
-    login(correo.trim());
+    login(correo.trim(), clave);
   };
 
   return (

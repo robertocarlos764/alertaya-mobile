@@ -19,8 +19,8 @@ import {
   Screen,
   toast,
 } from '@/components/ui';
-import { ago, deliveryRows, formatElapsed, formatPhone, headline, mapsUrl } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { ago, formatElapsed, formatPhone, headline, mapsUrl, type DeliveryState } from '@/demo/logic';
+import { useAlerts } from '@/data';
 import { useLocation } from '@/lib/useLocation';
 import { colors, space } from '@/theme';
 
@@ -28,7 +28,7 @@ const DOS_MIN = 2 * 60 * 1000;
 
 export default function Alerta() {
   useKeepAwake(undefined, { suppressDeactivateWarnings: true });
-  const { activeAlert, contacts, setAlertLocation, finishAlert } = useDemo();
+  const { current: activeAlert, reportLocation: setAlertLocation, finish: finishAlert } = useAlerts();
   const { fix } = useLocation();
   const [now, setNow] = useState(() => Date.now());
 
@@ -44,19 +44,15 @@ export default function Alerta() {
 
   if (!activeAlert) return null; // transición: la guardia ya la está quitando
 
-  const elapsed = now - activeAlert.createdAt;
-  const destinatarios = activeAlert.contactIds
-    .map((id) => contacts.find((c) => c.id === id))
-    .filter((c) => c !== undefined);
-  // Misma función que usa el store para el snapshot del historial: lo que ves es lo que se guarda.
-  const filas = deliveryRows(destinatarios, elapsed);
+  const elapsed = now - activeAlert.creadoEn;
+  const filas = activeAlert.contactos.map((c, i) => ({ ...c, id: c.contactId ?? String(i), estado: c.estado as DeliveryState }));
   const titular = headline(filas.map((f) => f.estado));
-  const location = activeAlert.location;
-  const vieja = location ? now - location.at > DOS_MIN : false;
+  const location = activeAlert.ultimaUbicacion;
+  const vieja = location ? now - location.capturadaEn > DOS_MIN : false;
 
   const compartir = () => {
     if (!location) return;
-    const precision = location.accuracy == null ? '' : ` (±${location.accuracy} m)`;
+    const precision = location.precisionMetros == null ? '' : ` (±${location.precisionMetros} m)`;
     const enlace = mapsUrl(location.lat, location.lon);
     Share.share({ message: `Esta es mi ubicación${precision}: ${enlace}` }).catch(() => {
       // Navegador sin navigator.share: se abre el enlace de Google Maps.
@@ -108,8 +104,8 @@ export default function Alerta() {
           <Card style={styles.ubicacion}>
             <MaterialIcons name="place" size={32} color={colors.accent} />
             <AppText color={vieja ? colors.warning : colors.text} style={styles.flex}>
-              {location.accuracy == null ? '' : `±${location.accuracy} m · `}
-              {ago(now - location.at)}
+              {location.precisionMetros == null ? '' : `±${location.precisionMetros} m · `}
+              {ago(now - location.capturadaEn)}
             </AppText>
           </Card>
         ) : (

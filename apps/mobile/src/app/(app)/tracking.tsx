@@ -8,13 +8,14 @@ import Reanimated from 'react-native-reanimated';
 import { TrailMap } from '@/components/TrailMap';
 import { AppText, Button, Card, entrada, PuntoActivo, Screen } from '@/components/ui';
 import { ago, formatElapsed, mapsUrl, osmEmbedUrl } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useAlerts, useAuth } from '@/data';
 import { colors, radius, space } from '@/theme';
 
 const DOS_MIN = 2 * 60 * 1000;
 
 export default function Seguimiento() {
-  const { activeAlert, session } = useDemo();
+  const { current: activeAlert } = useAlerts();
+  const { session } = useAuth();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -26,8 +27,8 @@ export default function Seguimiento() {
 
   const nombre = session?.nombre || 'Tu contacto';
   const telefono = session?.telefono ?? '';
-  const location = activeAlert.location;
-  const vieja = location ? now - location.at > DOS_MIN : false;
+  const location = activeAlert.ultimaUbicacion;
+  const vieja = location ? now - location.capturadaEn > DOS_MIN : false;
 
   return (
     <Screen scroll edges={['bottom']}>
@@ -88,7 +89,7 @@ export default function Seguimiento() {
             style={{ border: 0, width: '100%', height: 320, borderRadius: radius.card }}
           />
         ) : location ? (
-          <TrailMap trail={activeAlert.trail ?? [location]} />
+          <TrailMap trail={activeAlert.trail.length ? activeAlert.trail : [location]} />
         ) : (
           <Card style={styles.sinUbicacion}>
             <MaterialIcons name="location-off" size={40} color={colors.warning} />
@@ -104,12 +105,12 @@ export default function Seguimiento() {
           <AppText variant="heading">{nombre}</AppText>
           {location ? (
             <AppText color={vieja ? colors.warning : colors.textMuted}>
-              Última ubicación {ago(now - location.at)}
-              {location.accuracy == null ? '' : ` · precisión ±${location.accuracy} m`}
+              Última ubicación {ago(now - location.capturadaEn)}
+              {location.precisionMetros == null ? '' : ` · precisión ±${location.precisionMetros} m`}
               {vieja ? ' — sin actualizar' : ''}
             </AppText>
           ) : null}
-          <AppText color={colors.textMuted}>Alerta iniciada hace {formatElapsed(now - activeAlert.createdAt)}</AppText>
+          <AppText color={colors.textMuted}>Alerta iniciada hace {formatElapsed(now - activeAlert.creadoEn)}</AppText>
         </Card>
       </Reanimated.View>
 

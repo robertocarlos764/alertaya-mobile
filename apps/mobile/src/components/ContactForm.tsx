@@ -6,14 +6,15 @@ import Reanimated from 'react-native-reanimated';
 
 import { Avatar, AppText, Button, Chip, entrada, Screen, TextField, toast } from '@/components/ui';
 import { normalizePhone } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useContacts } from '@/data';
 import { colors, space } from '@/theme';
 
 const RELACIONES = ['Mamá', 'Papá', 'Pareja', 'Hermano/a', 'Amigo/a', 'Otro'];
 
 // Compartido por "nuevo" y "editar" (CONT-01 en UI).
 export function ContactForm({ id }: { id?: string }) {
-  const { contacts, addContact, updateContact } = useDemo();
+  const { list, create, update } = useContacts();
+  const contacts = list.status === 'ready' ? list.items : [];
   const existente = id ? contacts.find((c) => c.id === id) : undefined;
   const falta = !!id && !existente;
 
@@ -46,8 +47,8 @@ export function ContactForm({ id }: { id?: string }) {
       return;
     }
     const datos = { nombre: nombre.trim(), telefono: tel, relacion };
-    if (existente) updateContact({ ...datos, id: existente.id });
-    else addContact(datos);
+    if (existente) update({ ...datos, id: existente.id });
+    else create(datos);
     toast(existente ? 'Cambios guardados.' : `${datos.nombre} agregado.`);
     router.back();
   };

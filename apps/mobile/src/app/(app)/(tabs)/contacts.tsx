@@ -6,15 +6,18 @@ import Reanimated, { FadeInDown, FadeOutLeft, LinearTransition } from 'react-nat
 
 import { Avatar, AppText, Button, entrada, Header, PressableScale, Screen, toast } from '@/components/ui';
 import { formatPhone } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useContacts } from '@/data';
 import { colors, gradients, radius, space } from '@/theme';
 
 export default function Contactos() {
-  const { contacts, removeContact } = useDemo();
+  const { list, remove } = useContacts();
+  const contacts = list.status === 'ready' ? list.items : [];
 
   const eliminar = (id: string, nombre: string) => {
-    removeContact(id);
-    toast(`${nombre} eliminado.`);
+    remove(id).then(
+      () => toast(`${nombre} eliminado.`),
+      (e: Error) => toast(e.message),
+    );
   };
 
   const confirmarEliminar = (id: string, nombre: string) => {

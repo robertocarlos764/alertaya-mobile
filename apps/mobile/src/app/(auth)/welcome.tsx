@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import Reanimated, { FadeInRight, FadeOutLeft, LinearTransition } from 'react-native-reanimated';
 
 import { AppText, Button, Logo, Screen } from '@/components/ui';
-import { useDemo } from '@/demo/store';
+import { useLocalExtras } from '@/data';
 import { colors, gradients, radius, space } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -32,7 +32,7 @@ const PAGINAS: { icono: IconName; fondo: typeof gradients.sos | typeof gradients
 ];
 
 export default function Bienvenida() {
-  const { finishOnboarding } = useDemo();
+  const { finishOnboarding } = useLocalExtras();
   const [i, setI] = useState(0);
   const ultima = i === PAGINAS.length - 1;
   const p = PAGINAS[i];

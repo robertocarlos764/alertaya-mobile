@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 
-import type { Fix } from '@/demo/store';
+import type { GeoFix as Fix } from '@/data';
 
 export type EstadoUbicacion = 'sin_permiso' | 'denegado' | 'obteniendo' | 'fijada' | 'sin_senal';
 

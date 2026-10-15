@@ -5,14 +5,19 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DemoBanner, SnackbarHost } from '@/components/ui';
-import { DemoProvider, useDemo } from '@/demo/store';
+import { DataProvider, IS_DEMO, useAlerts, useAuth, useLocalExtras } from '@/data';
+import { initialScreen } from '@/data/logic';
 import { colors } from '@/theme';
 
 function Raiz() {
-  const { hydrated, session } = useDemo();
+  const auth = useAuth();
+  const { current } = useAlerts();
+  const { onboarded } = useLocalExtras();
+  const pantalla = initialScreen({ auth: auth.status, onboarded, alert: current?.estado ?? null });
+  const dentro = pantalla === 'home' || pantalla === 'alert';
 
-  // Splash mientras se lee el almacenamiento: evita el parpadeo de login (AUTH-02).
-  if (!hydrated) {
+  // Splash mientras se resuelve la sesión guardada: evita el parpadeo de login (AUTH-02).
+  if (pantalla === 'splash') {
     return (
       <View style={styles.splash}>
         <MaterialIcons name="shield" size={48} color={colors.accent} />
@@ -23,12 +28,12 @@ function Raiz() {
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <DemoBanner />
+      {IS_DEMO ? <DemoBanner /> : null}
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-        <Stack.Protected guard={!!session}>
+        <Stack.Protected guard={dentro}>
           <Stack.Screen name="(app)" />
         </Stack.Protected>
-        <Stack.Protected guard={!session}>
+        <Stack.Protected guard={!dentro}>
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
       </Stack>
@@ -41,14 +46,14 @@ function Raiz() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <DemoProvider>
+      <DataProvider>
         {/* En web la app se ve como una columna de teléfono centrada. */}
         <View style={styles.outer}>
           <View style={styles.phone}>
             <Raiz />
           </View>
         </View>
-      </DemoProvider>
+      </DataProvider>
     </SafeAreaProvider>
   );
 }

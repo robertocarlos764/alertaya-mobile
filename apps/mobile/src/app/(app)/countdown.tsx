@@ -12,13 +12,14 @@ import Reanimated, {
 } from 'react-native-reanimated';
 
 import { AppText, PressableScale, Screen, toast } from '@/components/ui';
-import { useDemo } from '@/demo/store';
+import { useAlerts, useLocalExtras } from '@/data';
 import { useLocation } from '@/lib/useLocation';
 import { colors, gradients, radius, space } from '@/theme';
 
 export default function Cuenta() {
   useKeepAwake(undefined, { suppressDeactivateWarnings: true });
-  const { startAlert, settings } = useDemo();
+  const { start: startAlert } = useAlerts();
+  const { settings } = useLocalExtras();
   // Modo silencioso: sin vibración, pantalla oscura y discreta, sin capa pulsante ni anillo.
   const { silencioso } = settings;
   const { fix } = useLocation();

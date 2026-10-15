@@ -7,12 +7,12 @@ import Reanimated from 'react-native-reanimated';
 import { TrailMap } from '@/components/TrailMap';
 import { Avatar, AppText, Card, entrada, infoEstado, Screen } from '@/components/ui';
 import { formatElapsed, formatFecha, formatPhone } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useLocalExtras } from '@/data';
 import { colors, space } from '@/theme';
 
 export default function DetalleHistorial() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { history } = useDemo();
+  const { history } = useLocalExtras();
   const item = history.find((h) => h.id === id);
 
   useEffect(() => {

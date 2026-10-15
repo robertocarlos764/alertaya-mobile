@@ -3,11 +3,12 @@ import Reanimated from 'react-native-reanimated';
 
 import { AppText, Button, Card, Chip, entrada, Header, Screen, toast } from '@/components/ui';
 import { COUNTDOWN_OPTIONS } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useAuth, useLocalExtras } from '@/data';
 import { colors, space } from '@/theme';
 
 export default function Ajustes() {
-  const { session, settings, updateSettings, logout, resetDemo } = useDemo();
+  const { session, logout } = useAuth();
+  const { settings, updateSettings, resetDemo } = useLocalExtras();
 
   const reiniciar = () => {
     resetDemo();

@@ -4,13 +4,12 @@ import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg'
 
 import { Card } from '@/components/ui';
 import { trailPath } from '@/demo/logic';
-import type { Fix } from '@/demo/store';
 import { colors } from '@/theme';
 
 const W = 300;
 const H = 200;
 
-export function TrailMap({ trail }: { trail: Fix[] }) {
+export function TrailMap({ trail }: { trail: { lat: number; lon: number }[] }) {
   const { d, xy } = trailPath(trail, W, H, 24);
   if (xy.length === 0) return null; // sin puntos no hay mapa: nunca uno por defecto
   const ultimo = xy[xy.length - 1];

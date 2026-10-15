@@ -55,7 +55,7 @@ type DemoValue = {
   register: (s: Session) => void;
   login: (correo: string) => void;
   logout: () => void;
-  addContact: (c: Omit<Contact, 'id'>) => void;
+  addContact: (c: Omit<Contact, 'id'>) => Contact;
   updateContact: (c: Contact) => void;
   removeContact: (id: string) => void;
   startAlert: (location: Fix | null) => void;
@@ -167,8 +167,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       login: (correo) => putSession({ nombre: capitalizar(correo.split('@')[0]), correo, telefono: '' }),
       logout: () => putSession(null),
       addContact: (c) => {
-        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-        putContacts([...contacts, { ...c, id }]);
+        const nuevo = { ...c, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6) };
+        putContacts([...contacts, nuevo]);
+        return nuevo;
       },
       updateContact: (c) => putContacts(contacts.map((x) => (x.id === c.id ? c : x))),
       removeContact: (id) => putContacts(contacts.filter((x) => x.id !== id)),

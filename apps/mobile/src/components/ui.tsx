@@ -33,8 +33,8 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/data';
 import { initials, type DeliveryState } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
 import { colors, gradients, radius, space, type } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -354,7 +354,7 @@ export function Avatar({ nombre, size = 40 }: { nombre: string; size?: number })
 }
 
 export function Header({ right }: { right?: ReactNode }) {
-  const { session } = useDemo();
+  const { session } = useAuth();
   return (
     <View style={styles.header}>
       <View style={styles.row}>

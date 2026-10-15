@@ -5,11 +5,11 @@ import Reanimated from 'react-native-reanimated';
 
 import { AppText, Card, entrada, Header, infoEstado, PressableScale, Screen } from '@/components/ui';
 import { formatElapsed, formatFecha } from '@/demo/logic';
-import { useDemo } from '@/demo/store';
+import { useLocalExtras } from '@/data';
 import { colors, radius, space } from '@/theme';
 
 export default function Historial() {
-  const { history } = useDemo();
+  const { history } = useLocalExtras();
 
   return (
     <Screen edges={[]}>

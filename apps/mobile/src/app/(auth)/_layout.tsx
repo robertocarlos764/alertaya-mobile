@@ -1,9 +1,9 @@
 import { Stack } from 'expo-router';
 
-import { useDemo } from '@/demo/store';
+import { useLocalExtras } from '@/data';
 
 export default function AuthLayout() {
-  const { onboarded } = useDemo();
+  const { onboarded } = useLocalExtras();
 
   // La bienvenida solo se ve en el primer arranque; al terminar, la guardia cae sola en login.
   return (

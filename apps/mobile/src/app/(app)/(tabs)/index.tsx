@@ -6,12 +6,13 @@ import Reanimated from 'react-native-reanimated';
 
 import { HoldButton } from '@/components/HoldButton';
 import { AppText, Button, Card, entrada, Header, Screen, toast } from '@/components/ui';
-import { useDemo } from '@/demo/store';
+import { useContacts } from '@/data';
 import { useLocation, type EstadoUbicacion } from '@/lib/useLocation';
 import { colors, radius, space } from '@/theme';
 
 export default function Inicio() {
-  const { contacts } = useDemo();
+  const { list } = useContacts();
+  const contacts = list.status === 'ready' ? list.items : [];
   const { state, fix, request } = useLocation();
   const [presionando, setPresionando] = useState(false);
   const sinContactos = contacts.length === 0;
