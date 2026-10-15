@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: SOS de punta a punta
 status: executing
-stopped_at: Phase 1 UI-SPEC approved
-last_updated: "2026-10-07T17:20:38.708Z"
-last_activity: 2026-10-07
+stopped_at: Completed 01-04-PLAN.md (01-01 sigue pendiente por tramites externos)
+last_updated: "2026-10-15T13:10:35.578Z"
+last_activity: 2026-10-14
 last_activity_desc: Phase 01 execution started
-state_head: 9011a6dc13c3b1af0e05900f97b0c7e2bbb955d3
+state_head: d697c7ffd9bd1df04c56a36e3343d9705f365362
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 16
-  completed_plans: 0
+  completed_plans: 2
   percent: 0
 ---
 
@@ -54,6 +54,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P04 | 15min | 2 tasks | 35 files |
 
 ## Accumulated Context
 
@@ -65,6 +70,9 @@ Recent decisions affecting current work:
 - [Roadmap]: Cimientos (baseline de migraciones, 4 proyectos .NET incremental, outbox, ProblemDetails, OpenAPI) van dentro de la Fase 1, no como fase horizontal
 - [Roadmap]: Fases 1 a 4 = demo del 2026-10-15; la Fase 4 depende solo de la Fase 1 y puede ir en paralelo a las Fases 2 y 3
 - [Roadmap]: IA mínima del demo (Fase 4) usa activador, movimiento y ubicación; audio + STT + clasificación (IA-01, IA-02) van en la Fase 7
+- [Phase 01]: 01-04: apps/api en cuatro proyectos (Domain/Application/Infrastructure/Api) junto al existente, sin src/; handlers usan IApplicationDbContext
+- [Phase 01]: 01-04: GET /health (anonimo, Healthy, sin BD) se adelanto desde 01-01 Tarea 1 porque la prueba de humo lo necesita
+- [Phase 01]: 01-04: finalizada (Estoy a salvo, D-09) terminal desde pendiente/activa/verificando/escalada
 
 ### Pending Todos
 
@@ -84,6 +92,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 261014-hhf | Prototipo demo de la app móvil (Expo Go, modo demo, sin backend; no completa 01-11..01-15) | 2026-10-14 | 8ad1ec4 | [261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m](./quick/261014-hhf-prototipo-demo-de-la-app-movil-expo-go-m/) |
 | 261014-j0a | Pulir prototipo: web, SOS que responde, paleta viva, animaciones, historial, ajustes, vista del contacto y bienvenida (modo demo) | 2026-10-14 | e304456 | [261014-j0a-pulir-prototipo-web-sos-colores-vivos-an](./quick/261014-j0a-pulir-prototipo-web-sos-colores-vivos-an/) |
+
 - [Plataforma]: .NET 8 pierde soporte el 2026-11-10 (PLAT-V2-01 en v2)
 
 ## Deferred Items
@@ -96,6 +105,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-06T19:31:57.229Z
-Stopped at: Phase 1 UI-SPEC approved
-Resume file: .planning/phases/01-sos-de-punta-a-punta/01-UI-SPEC.md
+Last session: 2026-10-15T13:10:35.486Z
+Stopped at: Completed 01-04-PLAN.md (01-01 sigue pendiente por tramites externos)
+Resume file: None
