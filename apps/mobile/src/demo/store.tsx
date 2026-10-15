@@ -4,7 +4,8 @@ import * as SecureStore from 'expo-secure-store';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
-import { uuidV4 } from '@/data/logic';
+import NetInfo from '@react-native-community/netinfo';
+import { randomUUID } from 'expo-crypto';
 import {
   appendTrail,
   DEFAULT_SETTINGS,
@@ -53,7 +54,7 @@ const KEYS = [KEY_SESSION, KEY_CONTACTS, KEY_ALERT, KEY_SETTINGS, KEY_HISTORY, K
 
 type DemoValue = {
   hydrated: boolean;
-  /** false = sin red (web: navigator.onLine); null = no se sabe (Android sin NetInfo). */
+  /** false = sin red; null = NetInfo aún no lo sabe. */
   online: boolean | null;
   session: Session | null;
   contacts: Contact[];
@@ -125,9 +126,6 @@ function normalizarAlerta(a: Partial<ActiveAlert> | null): ActiveAlert | null {
   };
 }
 
-const enLinea = () =>
-  typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' ? navigator.onLine : null;
-
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -138,20 +136,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   // ponytail: máximo 10 alertas en el historial (SecureStore ~2 KB por valor); sqlite si se necesita más.
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [onboarded, setOnboarded] = useState(false);
-  const [online, setOnline] = useState<boolean | null>(() => (esWeb ? enLinea() : null));
+  const [online, setOnline] = useState<boolean | null>(null);
 
-  // ponytail: solo web sabe si hay red (navigator.onLine); Android necesita @react-native-community/netinfo (01-13).
-  useEffect(() => {
-    if (!esWeb || typeof window === 'undefined') return;
-    const on = () => setOnline(true);
-    const off = () => setOnline(false);
-    window.addEventListener('online', on);
-    window.addEventListener('offline', off);
-    return () => {
-      window.removeEventListener('online', on);
-      window.removeEventListener('offline', off);
-    };
-  }, []);
+  useEffect(() => NetInfo.addEventListener((st) => setOnline(st.isConnected)), []);
 
   useEffect(() => {
     Promise.all([
@@ -233,7 +220,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         // Se guarda en el teléfono ANTES de cualquier red (SOS-03).
         putAlert({
           id: ahora.toString(36),
-          clientGeneratedId: uuidV4(),
+          clientGeneratedId: randomUUID(),
           createdAt: ahora,
           syncedAt: null,
           estado: 'activa',

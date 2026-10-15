@@ -78,14 +78,6 @@ export function toDeliveryView(estado: string, intentos: number, sincronizada: b
   }
 }
 
-/** UUID v4 para clientGeneratedId. ponytail: Math.random basta para una clave de idempotencia por usuario; 01-13 usa expo-crypto. */
-export function uuidV4(rand: () => number = Math.random): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = Math.floor(rand() * 16);
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
-
 /** Segundos que muestra la cuenta regresiva con deadline absoluto (no cuenta ticks: sobrevive a pausas). */
 export function secondsLeft(deadline: number, now: number): number {
   return Math.max(0, Math.ceil((deadline - now) / 1000));

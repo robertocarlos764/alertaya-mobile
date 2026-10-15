@@ -5,7 +5,6 @@ import {
   secondsLeft,
   sosAvailability,
   toDeliveryView,
-  uuidV4,
 } from './logic.ts';
 
 function eq(actual: unknown, expected: unknown, label: string) {
@@ -56,10 +55,6 @@ for (const e of API) {
   }
 }
 
-// uuidV4
-const id = uuidV4();
-eq(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id), true, 'uuid v4 formato');
-eq(uuidV4() !== id, true, 'uuid distinto');
 
 // Cuenta regresiva de deadline absoluto (01-13 Test 1; al volver a primer plano se recalcula con la hora real)
 eq(secondsLeft(10000, 5000), 5, 'faltan 5 s');
