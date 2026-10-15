@@ -34,7 +34,8 @@ import Reanimated, {
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/data';
-import { initials, type DeliveryState } from '@/demo/logic';
+import { toDeliveryView, type DeliveryTone } from '@/data/logic';
+import { initials } from '@/demo/logic';
 import { colors, gradients, radius, space, type } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -368,48 +369,35 @@ export function Header({ right }: { right?: ReactNode }) {
   );
 }
 
-// Única ruta para pintar un estado de entrega (tabla de 01-UI-SPEC).
-type InfoEstado = { etiqueta: string; color: string; fondo: string; icono: IconName; linea: string };
-const ESTADOS: Record<DeliveryState, InfoEstado> = {
-  en_cola: {
-    etiqueta: 'En cola',
-    color: colors.textMuted,
-    fondo: colors.glass,
-    icono: 'schedule',
-    linea: 'Esperando red',
-  },
-  enviado: {
-    etiqueta: 'Enviado',
-    color: colors.cyan,
-    fondo: colors.violetSoft,
-    icono: 'check',
-    linea: 'Esperando confirmación de entrega',
-  },
-  entregado: {
-    etiqueta: 'Entregado',
-    color: colors.success,
-    fondo: colors.successSoft,
-    icono: 'done-all',
-    linea: 'Confirmado por el operador',
-  },
-  fallido: {
-    etiqueta: 'Falló',
-    color: colors.accent,
-    fondo: colors.accentSoft,
-    icono: 'error-outline',
-    linea: 'No se pudo enviar el SMS',
-  },
+// Única ruta para pintar un estado de entrega (tabla de 01-UI-SPEC vía toDeliveryView).
+const TONOS: Record<DeliveryTone, { color: string; fondo: string }> = {
+  muted: { color: colors.textMuted, fondo: colors.glass },
+  warning: { color: colors.warning, fondo: colors.warningSoft },
+  info: { color: colors.cyan, fondo: colors.violetSoft },
+  success: { color: colors.success, fondo: colors.successSoft },
+  danger: { color: colors.accent, fondo: colors.accentSoft },
 };
 
-export const etiquetaEstado = (state: DeliveryState) => ESTADOS[state].etiqueta;
-export const infoEstado = (state: DeliveryState) => ESTADOS[state];
+/** Vista de un estado crudo del servidor; `sincronizada` false = la alerta aún no llegó al servidor. */
+export function infoEstado(estado: string, intentos = 0, sincronizada = true) {
+  const v = toDeliveryView(estado, intentos, sincronizada);
+  return { etiqueta: v.label, linea: v.secondary, icono: v.icon as IconName, ...TONOS[v.tone] };
+}
 
-export function DeliveryStatus({ state }: { state: DeliveryState }) {
-  const e = ESTADOS[state];
+export function DeliveryStatus({
+  estado,
+  intentos,
+  sincronizada,
+}: {
+  estado: string;
+  intentos: number;
+  sincronizada: boolean;
+}) {
+  const e = infoEstado(estado, intentos, sincronizada);
   return (
     <View style={[styles.status, { backgroundColor: e.fondo }]}>
-      {/* key = estado: cada cambio de estado vuelve a montar el contenido y "salta". */}
-      <Reanimated.View key={state} entering={ZoomIn.springify()} style={styles.statusInner}>
+      {/* key = etiqueta: cada cambio de estado vuelve a montar el contenido y "salta". */}
+      <Reanimated.View key={e.etiqueta + e.linea} entering={ZoomIn.springify()} style={styles.statusInner}>
         <View style={styles.row}>
           <MaterialIcons name={e.icono} size={20} color={e.color} />
           <AppText variant="label" color={e.color} style={styles.statusLabel}>

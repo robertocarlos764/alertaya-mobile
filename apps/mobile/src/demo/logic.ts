@@ -39,37 +39,6 @@ export function simulatedStatus(index: number, telefono: string, elapsedMs: numb
   return elapsedMs < 5000 + offset * 1.25 ? 'enviado' : 'entregado';
 }
 
-/** Titular honesto de la alerta activa, derivado del estado agregado de los contactos. */
-export function headline(estados: DeliveryState[]): { titulo: string; subtitulo: string; fallo: boolean } {
-  const entregados = estados.filter((e) => e === 'entregado').length;
-  if (estados.length > 0 && estados.every((e) => e === 'fallido')) {
-    return {
-      titulo: 'No pudimos avisar a tus contactos',
-      subtitulo: 'Llámalos directamente o al 123.',
-      fallo: true,
-    };
-  }
-  if (entregados > 0) {
-    return {
-      titulo: 'Alerta activa',
-      subtitulo: `${entregados} de ${estados.length} contactos recibieron tu aviso.`,
-      fallo: false,
-    };
-  }
-  if (estados.includes('enviado')) {
-    return {
-      titulo: 'Alerta activa',
-      subtitulo: 'Mensajes enviados. Esperando confirmación de entrega.',
-      fallo: false,
-    };
-  }
-  return {
-    titulo: 'Alerta activa',
-    subtitulo: 'Guardada en tu teléfono. Avisando a tus contactos…',
-    fallo: false,
-  };
-}
-
 const dos = (n: number) => String(n).padStart(2, '0');
 
 /** "MM:SS", o "H:MM:SS" desde 1 h. */

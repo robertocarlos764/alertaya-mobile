@@ -6,7 +6,6 @@ import {
   deliveryRows,
   formatElapsed,
   formatPhone,
-  headline,
   initials,
   mapsUrl,
   normalizePhone,
@@ -38,13 +37,23 @@ const falla = '+573000000000';
 eq(simulatedStatus(0, falla, 3000), 'en_cola', 'falla 3000');
 eq(simulatedStatus(0, falla, 6000), 'fallido', 'falla 6000');
 
-eq(headline(['fallido', 'fallido']).fallo, true, 'headline todos fallidos');
-eq(headline(['entregado', 'en_cola']).subtitulo, '1 de 2 contactos recibieron tu aviso.', 'headline entregado');
-eq(headline(['enviado', 'en_cola']).subtitulo, 'Mensajes enviados. Esperando confirmación de entrega.', 'headline enviado');
-eq(headline(['en_cola']).subtitulo, 'Guardada en tu teléfono. Avisando a tus contactos…', 'headline en cola');
+// Orden de estados: con el tiempo un contacto nunca retrocede (en_cola -> enviado -> entregado | fallido).
+const RANGO = { en_cola: 0, enviado: 1, entregado: 2, fallido: 2 };
+for (const tel of [ok, falla]) {
+  for (let i = 0; i < 3; i++) {
+    let previo = 0;
+    for (let ms = 0; ms <= 15000; ms += 250) {
+      const r = RANGO[simulatedStatus(i, tel, ms)];
+      eq(r >= previo, true, `simulatedStatus no retrocede (${tel}, ${i}, ${ms})`);
+      previo = r;
+    }
+  }
+}
+eq(simulatedStatus(0, falla, 60000) === 'fallido' && simulatedStatus(0, ok, 60000) === 'entregado', true, 'estados finales');
 
 eq(formatElapsed(65000), '01:05', 'formatElapsed min');
 eq(formatElapsed(3723000), '1:02:03', 'formatElapsed hora');
+eq(formatElapsed(3725000), '1:02:05', 'formatElapsed 01-14 Test 5');
 eq(ago(12000), 'hace 12 s', 'ago s');
 eq(ago(130000), 'hace 2 min', 'ago min');
 
