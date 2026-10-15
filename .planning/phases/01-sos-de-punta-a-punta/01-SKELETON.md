@@ -27,7 +27,7 @@ Ruta del esqueleto por planes: 01-01 (API publico por ngrok) -> 01-03/01-05 (esq
 | Pagina publica | Next.js 16 App Router en Vercel Hobby (`apps/web`, ruta unica `/t/[token]`), maplibre-gl + OpenFreeMap dark, polling cada 5 s, sin supabase-js ni cookies | D-08, D-16; gratis y sin claves |
 | Exposicion del API | API en la PC de Roberto expuesto con ngrok y dominio estatico gratuito; esa URL fija va en el APK, en Vercel y en el StatusCallback de Twilio | D-18 (reemplaza a D-15) |
 | Tiempo | `TimeProvider` inyectado en el API (FakeTimeProvider en pruebas) | Ventana de 1 h y backoff deterministas |
-| Pruebas | xUnit (Domain puro; integracion con WebApplicationFactory contra Supabase local en Docker), pgTAP (`supabase test db`), jest-expo (logica pura TS), vitest (web) | Sin Testcontainers: Supabase local ya trae `auth` y roles |
+| Pruebas | xUnit (Domain puro; integracion con WebApplicationFactory contra el proyecto Supabase remoto con `ALERTAYA_TEST_DB`, en serie y con usuarios `it-alertaya-…` que se limpian), pgTAP en el remoto ejecutado por `BdRemotaTests` (cada archivo en `begin;`/`rollback;`) + comparacion de catalogo con `supabase/catalog/remoto.txt`, jest-expo (logica pura TS), vitest (web) | D-22: sin Docker; el remoto solo tiene datos de prueba y trae `auth` y roles reales |
 | Directory layout | `apps/api/{AlertaYA.Domain, AlertaYA.Application, AlertaYA.Infrastructure, AlertaYA.Api, tests/*}`, `apps/mobile/src/{app, components, features, lib, theme, i18n}`, `apps/web/src/{app/t/[token], lib}`, `supabase/{migrations, tests}`, `scripts/` | Rutas solo en `src/app` (AGENTS.md); logica pura testeable fuera de las pantallas |
 
 ## Stack Touched in Phase 1

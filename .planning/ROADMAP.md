@@ -37,55 +37,58 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. La pantalla de alerta activa muestra por contacto el estado real (en cola, enviado, entregado, fallido); "entregado" aparece solo tras la confirmación de Twilio, y con el worker apagado la app no dice "enviado"
   5. Si el SOS se dispara sin red o el API se reinicia a mitad del envío, al volver la conexión la alerta y sus SMS se completan sin duplicarse (una sola alerta en el servidor, un SMS por contacto)
 
-**Plans:** 2/16 plans executed (9 waves)
+**Plans:** 2/16 plans executed (10 waves)
 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — API público por ngrok (dominio fijo), spike de Twilio en Colombia y herramientas de administrador (W1)
+- [ ] 01-01-PLAN.md — API público por ngrok (dominio fijo), spike de Twilio en Colombia y herramientas de administrador, sin Docker (D-22) (W1)
 - [x] 01-02-PLAN.md — Decisiones del día 1: applicationId, destino de sms-fallback y legitimidad de paquetes (W1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-03-PLAN.md — Esquema versionado: baseline + migración única de la fase con pruebas pgTAP, sin tocar el remoto (W2)
+- [ ] 01-03-PLAN.md — Esquema versionado: baseline desde inspección de solo lectura + inventario del catálogo + migración única de la fase con pruebas pgTAP y su runner, sin tocar el remoto (W2)
 - [x] 01-04-PLAN.md — API en 4 proyectos Clean Architecture + máquina de estados con `finalizada` (W2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-05-PLAN.md — [BLOCKING] Push del esquema y política de Auth al remoto con confirmación de Roberto (W3)
-- [ ] 01-06-PLAN.md — SOS en el servidor: alerta + enlace + entregas en una transacción, estado por contacto, ProblemDetails, contactos endurecidos, OpenAPI (W3)
+- [ ] 01-05-PLAN.md — [BLOCKING] Ensayo con rollback, push del esquema y política de Auth al remoto con confirmación de Roberto (W3)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-07-PLAN.md — SMS real por Twilio con outbox durable, texto GSM-7 y 2 reintentos (W4)
+- [ ] 01-06-PLAN.md — SOS en el servidor: alerta + enlace + entregas en una transacción, estado por contacto, ProblemDetails, contactos endurecidos, OpenAPI; integración contra el remoto (W4)
 - [ ] 01-11-PLAN.md — App: base Expo Router, development build y sesión (login/registro) (W4)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-08-PLAN.md — "Entregado" solo por webhook firmado de Twilio (W5)
+- [ ] 01-07-PLAN.md — SMS real por Twilio con outbox durable, texto GSM-7 y 2 reintentos (W5)
 - [ ] 01-12-PLAN.md — App: contactos de emergencia (CRUD) con cliente tipado (W5)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 01-09-PLAN.md — Link público por token, ubicación con hora del fix y "Estoy a salvo" en el servidor (W6)
+- [ ] 01-08-PLAN.md — "Entregado" solo por webhook firmado de Twilio (W6)
 - [ ] 01-13-PLAN.md — App: SOS (hold 2 s → cuenta regresiva → alerta local → estados reales) y sync sin red (W6)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 01-10-PLAN.md — Página pública /t/[token] en Vercel con mapa y todos los estados (W7)
-- [ ] 01-14-PLAN.md — App: alerta activa completa, "Estoy a salvo" y reapertura (W7)
+- [ ] 01-09-PLAN.md — Link público por token, ubicación con hora del fix y "Estoy a salvo" en el servidor (W7)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 01-15-PLAN.md — App: ubicación en primer plano, mini mapa y tarjeta de ubicación (W8)
+- [ ] 01-10-PLAN.md — Página pública /t/[token] en Vercel con mapa y todos los estados (W8)
+- [ ] 01-14-PLAN.md — App: alerta activa completa, "Estoy a salvo" y reapertura (W8)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 01-16-PLAN.md — APK release para la demo y recorrido de aceptación de la fase (W9)
+- [ ] 01-15-PLAN.md — App: ubicación en primer plano, mini mapa y tarjeta de ubicación (W9)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 01-16-PLAN.md — APK release para la demo y recorrido de aceptación de la fase (W10)
 
 **UI hint**: yes
 **Spike (día 1)**: Twilio en Colombia — número/remitente, entrega en Claro, Movistar y Tigo, webhook de estado (DLR) firmado, costo por segmento y texto del SMS
-**Cimientos incluidos**: baseline del esquema con Supabase CLI (`supabase db pull`) + migraciones versionadas como fuente de verdad (entregas por contacto, outbox, token de seguimiento, índices de FKs, policies de `alerts` con `(select auth.uid())`), aplicadas al remoto solo con confirmación de Roberto; refactor incremental de `apps/api` a 4 proyectos Clean Architecture solo en el corte alerta/entregas; outbox transaccional; ProblemDetails; `openapi.json` exportado y cliente tipado en `apps/mobile`; tests de la máquina de estados de alerta; development build Android y shell con tema y navegación
+**Cimientos incluidos**: baseline del esquema escrito desde la inspección de solo lectura del remoto (sin Docker, D-22) + migraciones versionadas como fuente de verdad (entregas por contacto, outbox, token de seguimiento, índices de FKs, policies de `alerts` con `(select auth.uid())`), aplicadas al remoto solo con confirmación de Roberto; refactor incremental de `apps/api` a 4 proyectos Clean Architecture solo en el corte alerta/entregas; outbox transaccional; ProblemDetails; `openapi.json` exportado y cliente tipado en `apps/mobile`; tests de la máquina de estados de alerta; development build Android y shell con tema y navegación
 
 ### Phase 2: Protección manos libres y tracking en segundo plano
 

@@ -48,6 +48,14 @@ Fuera de esta fase: activadores manos libres y tracking en segundo plano real (f
 - **D-20:** El nombre y el teléfono del perfil se llenan con una **migración versionada del trigger `handle_new_user`** que copia la metadata del `signUp`; no se hace PATCH desde la app. Se aplica al remoto solo con confirmación de Roberto.
 - **D-21:** Builds: **development build** para desarrollar y **APK release** firmado localmente para la demo del 2026-10-15, sin depender de Metro ni del PC para el bundle JS.
 
+### Decisión de entorno (2026-10-15)
+- **D-22:** **Sin Docker.** Docker Desktop no se pudo instalar en la PC de Roberto (es la alternativa "sin-docker" que preveía 01-01 Tarea 3). No hay Postgres local ni segundo proyecto: la base de pruebas es el **proyecto Supabase remoto existente `vzyasmeeyvbkpoiosses`**, que solo tiene datos de prueba (1 usuario, 1 alerta). Reglas:
+  - **Baseline de migraciones:** se escribe a mano desde la inspección de solo lectura (MCP de Supabase: `list_tables` + consultas a `pg_catalog`/`information_schema`), no con `supabase db dump/pull/diff`, que requieren Docker. Se marca como aplicado en el historial remoto con `supabase migration repair --status applied <version>` (no requiere Docker) o con un INSERT en `supabase_migrations.schema_migrations`, siempre con confirmación de Roberto.
+  - **Migración de la fase:** se aplica al remoto solo después de que Roberto vea el SQL exacto y lo apruebe (D-20 se mantiene), con `supabase db push` o con el MCP `apply_migration`. No hay shadow DB ni `db diff`: para comprobar que el remoto coincide con las migraciones se compara el catálogo por consultas.
+  - **pgTAP:** la extensión `pgtap` se habilita en el remoto como parte de la migración (con la misma aprobación). Las pruebas viven en `supabase/tests/*.sql`, cada archivo envuelto en `begin; ... rollback;`, y se ejecutan contra el remoto con un runner propio (no con `supabase test db`, que necesita Docker).
+  - **Pruebas de integración del API** (Category=Integration): corren contra el remoto con la cadena de conexión de una variable de entorno (`ALERTAYA_TEST_DB`), nunca versionada; usan usuarios de prueba dedicados (correo con prefijo identificable) y limpian lo que crean.
+  - **Reversibility:** reversible — si más adelante hay Docker o un proyecto de pruebas aparte, basta con apuntar `ALERTAYA_TEST_DB` a esa BD.
+
 ### Claude's Discretion
 - Redacción exacta del SMS de "a salvo" y textos de UI dentro del tono definido.
 - Intervalo de envío de ubicación en primer plano y de polling de la página del link.
@@ -133,3 +141,4 @@ Fuera de esta fase: activadores manos libres y tracking en segundo plano real (f
 
 *Phase: 01-sos-de-punta-a-punta*
 *Context gathered: 2026-10-06*
+*Actualizado: 2026-10-15 (D-22, sin Docker)*
