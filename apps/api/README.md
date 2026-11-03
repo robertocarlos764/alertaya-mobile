@@ -84,6 +84,27 @@ dotnet test AlertaYA.sln --filter "Category!=Integration"   # humo + dominio, si
 
 En `Development` se habilita Swagger en `/swagger`.
 
+### Correr el API para la demo (ngrok)
+
+El API corre en el PC y se expone en un dominio HTTPS fijo y gratuito de ngrok (D-18).
+
+1. Instalar ngrok: `winget install ngrok.ngrok`
+2. Autenticarlo una vez: `ngrok config add-authtoken <token>` (dashboard.ngrok.com → Your Authtoken)
+3. Definir `NGROK_DOMAIN` con el dominio estático gratuito, sin `https://` (dashboard.ngrok.com → Domains)
+4. Evitar que el PC se suspenda y sincronizar la hora (el JWT tolera solo 30 s de desfase):
+   ```powershell
+   powercfg /change standby-timeout-ac 0
+   w32tm /resync
+   ```
+5. Desde la raíz del repo:
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-api.ps1
+   ```
+
+El script arranca el API en Release y en `Production` (sin Swagger) en `http://localhost:5016`, espera a `/health` y abre el túnel. La URL pública `https://<NGROK_DOMAIN>` es la que va en el APK, en Vercel y en el StatusCallback de Twilio. Al cerrar ngrok (Ctrl+C) se detiene el API.
+
+Comprobación: `curl -fsS https://<NGROK_DOMAIN>/health` → `Healthy`.
+
 ---
 
 ## Endpoints
