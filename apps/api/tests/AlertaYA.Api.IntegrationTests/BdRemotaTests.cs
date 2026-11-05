@@ -118,8 +118,8 @@ public class BdRemotaTests
         {
             Assert.Fail(
                 "Falta la variable de entorno ALERTAYA_TEST_DB. Definela como variable de usuario de Windows con la "
-                + "cadena Npgsql del Session pooler (Dashboard -> Connect, puerto 5432), por ejemplo: "
-                + "Host=<host>;Port=5432;Database=postgres;Username=postgres.<ref>;Password=<clave>;SSL Mode=Require;Maximum Pool Size=5");
+                + "cadena Npgsql del Session pooler (Dashboard -> Connect, puerto 5432, usuario postgres.<ref>, "
+                + "la clave de la BD, SSL Mode=Require y Maximum Pool Size=5). Ver user_setup de 01-03-PLAN.md.");
         }
 
         // Sin pool: ninguna conexion con una transaccion a medias vuelve a reutilizarse.
