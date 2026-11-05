@@ -7,6 +7,7 @@ using AlertaYA.Domain.Entities;
 using AlertaYA.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlertaYA.Api.Controllers;
@@ -27,6 +28,7 @@ public class AlertsController : ControllerBase
 
     // El 201 significa "guardada y en cola", no "enviada": el estado real sale de /status.
     [HttpPost]
+    [EnableRateLimiting("crear-alerta")]
     public async Task<ActionResult<AlertResponse>> Create(
         [FromBody] CreateAlertRequest request,
         [FromServices] CreateAlertHandler handler,

@@ -125,14 +125,14 @@ Todos requieren `Authorization: Bearer {jwt}` salvo el marcado como público.
 | Método | Ruta | Descripción |
 |---|---|---|
 | GET | `/api/emergency-contacts` | Lista contactos del usuario |
-| POST | `/api/emergency-contacts` | Crea contacto (`nombre`, `telefono`, opcional `relacion`); `user_id` se asigna del token |
-| PUT | `/api/emergency-contacts/{id}` | Actualiza contacto (valida pertenencia) |
+| POST | `/api/emergency-contacts` | Crea contacto (`nombre`, `telefono`, opcional `relacion`); `user_id` se asigna del token. El teléfono se guarda como `+573XXXXXXXXX` (solo celular colombiano, si no 400 `validation_error`); repetido 409 `duplicate_contact`; máximo 10, 409 `contact_limit` |
+| PUT | `/api/emergency-contacts/{id}` | Actualiza contacto con las mismas validaciones; ajeno o inexistente 404 `contact_not_found` |
 | DELETE | `/api/emergency-contacts/{id}` | Elimina contacto (valida pertenencia) |
 
 ### Alertas — `/api/alerts`
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/api/alerts` | Crea la alerta ya `activa`, su enlace de seguimiento y una entrega `en_cola` por contacto en una transacción. **Idempotente** vía `clientGeneratedId` (obligatorio). Body: `canalActivacion` (`boton_pulsado` \| `voz` \| `boton_fisico`), opcionales `ubicacionInicial {lat, lon}` (se rechaza fuera de rango o `(0,0)`), `precisionMetros`, `fuente` (`gps` \| `celular` \| `cache`). El 201 significa guardada y en cola, no enviada |
+| POST | `/api/alerts` | Crea la alerta ya `activa`, su enlace de seguimiento y una entrega `en_cola` por contacto en una transacción. **Idempotente** vía `clientGeneratedId` (obligatorio). Body: `canalActivacion` (`boton_pulsado` \| `voz` \| `boton_fisico`), opcionales `ubicacionInicial {lat, lon}` (se rechaza fuera de rango o `(0,0)`), `precisionMetros`, `fuente` (`gps` \| `celular` \| `cache`). El 201 significa guardada y en cola, no enviada. Máximo 10 por hora por usuario (`RateLimits__CrearAlertaPorHora`): 429 `rate_limited` |
 | POST | `/api/alerts/{id}/location` | Registra ubicación en el historial (`alert_locations`) y actualiza `alerts.ubicacion` en la misma transacción. Solo en estados activos |
 | GET | `/api/alerts/{id}/status` | Estado de la alerta, `serverNow`, `trackingUrl`, última ubicación confirmada y el estado real de cada contacto (`en_cola`, `enviando`, `reintento`, `enviado`, `entregado`, `fallido`, `cancelado`). 404 si no es del usuario |
 | GET | `/api/alerts/active` | La alerta en curso del usuario (mismo cuerpo que `/status`) o 204 |

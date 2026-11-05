@@ -1,5 +1,8 @@
 using System.Text;
+using System.Text.Json;
+using System.Threading.RateLimiting;
 using AlertaYA.Api.Errors;
+using AlertaYA.Api.Extensions;
 using AlertaYA.Api.OpenApi;
 using AlertaYA.Api.Options;
 using AlertaYA.Application.Abstractions;
@@ -98,6 +101,29 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
+// Pitfall 18: tope por usuario contra el abuso del canal SMS. Particion por "sub", nunca por IP.
+var alertasPorHora = builder.Configuration.GetValue("RateLimits:CrearAlertaPorHora", 10);
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("crear-alerta", http => RateLimitPartition.GetFixedWindowLimiter(
+        http.User.GetUserId()?.ToString() ?? string.Empty,
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = alertasPorHora, Window = TimeSpan.FromHours(1) }));
+    options.OnRejected = async (ctx, ct) =>
+    {
+        if (ctx.Lease.TryGetMetadata(MetadataName.RetryAfter, out var espera))
+        {
+            ctx.HttpContext.Response.Headers.RetryAfter = ((int)espera.TotalSeconds).ToString();
+        }
+
+        ctx.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        var problema = Problemas.Crear(
+            StatusCodes.Status429TooManyRequests,
+            Problemas.CodigoRateLimited,
+            "Activaste demasiadas alertas en poco tiempo. Si es una emergencia, llama al 123.");
+        await ctx.HttpContext.Response.WriteAsJsonAsync(problema, (JsonSerializerOptions?)null, "application/problem+json", ct);
+    };
+});
+
 builder.Services.AddScoped<CreateAlertHandler>();
 builder.Services.AddScoped<GetAlertStatusHandler>();
 
@@ -112,6 +138,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapHealthChecks("/health");
 app.MapControllers();
