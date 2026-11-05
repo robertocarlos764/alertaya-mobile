@@ -40,7 +40,9 @@ select linea from (
     union all
     select 'policy' || E'\t' || p.schemaname || '.' || p.tablename || '.' || p.policyname || E'\t'
         || p.cmd || ' roles=' || array_to_string(p.roles, ',')
-        || ' using=' || coalesce(p.qual, '') || ' check=' || coalesce(p.with_check, '')
+        -- qual/with_check traen saltos de linea: se colapsan para mantener una linea por objeto.
+        || ' using=' || regexp_replace(coalesce(p.qual, ''), '\s+', ' ', 'g')
+        || ' check=' || regexp_replace(coalesce(p.with_check, ''), '\s+', ' ', 'g')
     from pg_policies p
     where p.schemaname in ('public', 'private')
 
