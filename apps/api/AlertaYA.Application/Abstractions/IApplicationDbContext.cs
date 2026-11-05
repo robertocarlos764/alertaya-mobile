@@ -14,6 +14,8 @@ public interface IApplicationDbContext
     DbSet<Alert> Alerts { get; }
     DbSet<AlertLocation> AlertLocations { get; }
     DbSet<VerificationLog> VerificationLogs { get; }
+    DbSet<NotificationDelivery> NotificationDeliveries { get; }
+    DbSet<TrackingLink> TrackingLinks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

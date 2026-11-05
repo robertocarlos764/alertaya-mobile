@@ -13,11 +13,13 @@ public class ApiFactory : WebApplicationFactory<Program>
     public const string TestSigningKey = "alertaya-test-signing-key-solo-para-pruebas-0123456789";
     public const string TestIssuer = "alertaya-test";
     public const string TestAudience = "authenticated";
+    public const string TestWebBaseUrl = "https://web.prueba.alertaya.local";
 
-    /// <summary>Supabase local por defecto; se sobreescribe con la variable ALERTAYA_TEST_DB.</summary>
-    public static string ConnectionString =>
-        Environment.GetEnvironmentVariable("ALERTAYA_TEST_DB")
-        ?? "Host=127.0.0.1;Port=54322;Database=postgres;Username=postgres;Password=postgres";
+    public static readonly string TestSecretoSeguimiento = Convert.ToBase64String(
+        System.Text.Encoding.UTF8.GetBytes("secreto-de-seguimiento-de-prueba"));
+
+    // Sin la variable no se fija cadena: las pruebas de humo no tocan la BD (D-22).
+    public static string? ConnectionString => Environment.GetEnvironmentVariable("ALERTAYA_TEST_DB");
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -25,6 +27,12 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Jwt:Issuer", TestIssuer);
         builder.UseSetting("Jwt:Audience", TestAudience);
         builder.UseSetting("Jwt:Authority", string.Empty);
-        builder.UseSetting("ConnectionStrings:Default", ConnectionString);
+        builder.UseSetting("Public:ApiBaseUrl", "https://api.prueba.alertaya.local");
+        builder.UseSetting("Public:WebBaseUrl", TestWebBaseUrl);
+        builder.UseSetting("Public:SecretoSeguimiento", TestSecretoSeguimiento);
+        if (!string.IsNullOrWhiteSpace(ConnectionString))
+        {
+            builder.UseSetting("ConnectionStrings:Default", ConnectionString);
+        }
     }
 }

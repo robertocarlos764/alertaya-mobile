@@ -23,6 +23,8 @@ public class AppDbContext : DbContext, IApplicationDbContext
     public DbSet<Alert> Alerts => Set<Alert>();
     public DbSet<AlertLocation> AlertLocations => Set<AlertLocation>();
     public DbSet<VerificationLog> VerificationLogs => Set<VerificationLog>();
+    public DbSet<NotificationDelivery> NotificationDeliveries => Set<NotificationDelivery>();
+    public DbSet<TrackingLink> TrackingLinks => Set<TrackingLink>();
 
     /// <summary>SqlState 23505 = unique_violation de PostgreSQL.</summary>
     public bool EsViolacionDeUnicidad(DbUpdateException ex)
@@ -85,6 +87,7 @@ public class AppDbContext : DbContext, IApplicationDbContext
             e.Property(a => a.ActualizadoEn).HasColumnName("actualizado_en");
             // Columna de idempotencia (sección 6): UUID generado por el cliente.
             e.Property(a => a.ClientGeneratedId).HasColumnName("client_generated_id");
+            e.Property(a => a.FinalizadaEn).HasColumnName("finalizada_en");
 
             e.HasIndex(a => a.UserId);
             // Índice único por usuario: evita alertas duplicadas ante reintentos del cliente
@@ -139,6 +142,61 @@ public class AppDbContext : DbContext, IApplicationDbContext
                 .WithMany()
                 .HasForeignKey(v => v.AlertId)
                 .HasPrincipalKey(a => a.Id);
+        });
+
+        modelBuilder.Entity<TrackingLink>(e =>
+        {
+            e.ToTable("tracking_links");
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Id).HasColumnName("id");
+            e.Property(t => t.AlertId).HasColumnName("alert_id").IsRequired();
+            e.Property(t => t.TokenHash).HasColumnName("token_hash").IsRequired();
+            e.Property(t => t.RevocadoEn).HasColumnName("revocado_en");
+            e.Property(t => t.CreadoEn).HasColumnName("creado_en");
+
+            e.HasIndex(t => t.AlertId).IsUnique();
+            e.HasIndex(t => t.TokenHash).IsUnique();
+            e.HasOne<Alert>()
+                .WithMany()
+                .HasForeignKey(t => t.AlertId)
+                .HasPrincipalKey(a => a.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<NotificationDelivery>(e =>
+        {
+            e.ToTable("notification_deliveries");
+            e.HasKey(d => d.Id);
+            e.Property(d => d.Id).HasColumnName("id");
+            e.Property(d => d.AlertId).HasColumnName("alert_id").IsRequired();
+            e.Property(d => d.ContactId).HasColumnName("contact_id");
+            e.Property(d => d.Canal).HasColumnName("canal").IsRequired();
+            e.Property(d => d.Tipo).HasColumnName("tipo").IsRequired();
+            e.Property(d => d.Estado).HasColumnName("estado").IsRequired();
+            e.Property(d => d.ContactoNombre).HasColumnName("contacto_nombre").IsRequired();
+            e.Property(d => d.ContactoTelefono).HasColumnName("contacto_telefono").IsRequired();
+            e.Property(d => d.Intentos).HasColumnName("intentos");
+            e.Property(d => d.ProximoIntentoEn).HasColumnName("proximo_intento_en");
+            e.Property(d => d.LeaseHasta).HasColumnName("lease_hasta");
+            e.Property(d => d.ProveedorSid).HasColumnName("proveedor_sid");
+            e.Property(d => d.CodigoError).HasColumnName("codigo_error");
+            e.Property(d => d.CreadoEn).HasColumnName("creado_en");
+            e.Property(d => d.ActualizadoEn).HasColumnName("actualizado_en");
+
+            e.HasIndex(d => new { d.AlertId, d.ContactId, d.Canal, d.Tipo })
+                .IsUnique()
+                .HasDatabaseName("notification_deliveries_unica_por_contacto");
+            e.HasIndex(d => d.ProveedorSid).IsUnique();
+            e.HasOne<Alert>()
+                .WithMany()
+                .HasForeignKey(d => d.AlertId)
+                .HasPrincipalKey(a => a.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<EmergencyContact>()
+                .WithMany()
+                .HasForeignKey(d => d.ContactId)
+                .HasPrincipalKey(c => c.Id)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

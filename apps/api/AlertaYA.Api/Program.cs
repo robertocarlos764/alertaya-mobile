@@ -1,13 +1,14 @@
 using System.Text;
+using AlertaYA.Api.Errors;
 using AlertaYA.Api.Options;
-using AlertaYA.Api.Services;
-using AlertaYA.Api.Services.Abstractions;
-using AlertaYA.Api.Services.Background;
 using AlertaYA.Application.Abstractions;
+using AlertaYA.Application.Alerts;
+using AlertaYA.Application.Options;
 using AlertaYA.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,15 +16,29 @@ var builder = WebApplication.CreateBuilder(args);
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 
 builder.Services.AddControllers();
+
+builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ctx =>
+{
+    var codigo = Problemas.CodigoPorEstado(ctx.ProblemDetails.Status);
+    if (codigo is not null)
+    {
+        ctx.ProblemDetails.Extensions.TryAdd("code", codigo);
+    }
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // EF Core contra PostgreSQL (Supabase). PostGIS via NetTopologySuite para geography(point, 4326).
-builder.Services.AddDbContext<AppDbContext>(options =>
+// Con UseNpgsql(cadena) el plugin NTS no llegaba al data source y escribir un Point en geography fallaba.
+// Singleton perezoso: el host arranca sin cadena (pruebas de humo).
+builder.Services.AddSingleton(_ =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("Default");
-    options.UseNpgsql(connectionString, npgsql => npgsql.UseNetTopologySuite());
+    var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("Default"));
+    dataSourceBuilder.UseNetTopologySuite();
+    return dataSourceBuilder.Build();
 });
+builder.Services.AddDbContext<AppDbContext>((sp, options) =>
+    options.UseNpgsql(sp.GetRequiredService<NpgsqlDataSource>(), npgsql => npgsql.UseNetTopologySuite()));
 
 // Puerto de persistencia de Application: misma instancia scoped que AppDbContext.
 builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
@@ -33,7 +48,8 @@ builder.Services.AddHealthChecks();
 
 // Opciones fuertemente tipadas.
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
-builder.Services.Configure<SmsFallbackOptions>(builder.Configuration.GetSection("SmsFallback"));
+builder.Services.Configure<PublicOptions>(builder.Configuration.GetSection(PublicOptions.Seccion));
+builder.Services.AddSingleton(TimeProvider.System);
 
 // Autenticación JWT emitido por Supabase Auth (sección 2): el backend valida el token en cada request.
 builder.Services
@@ -74,13 +90,7 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
-// Procesamiento asíncrono (sección 7): cola en memoria + workers en background.
-builder.Services.AddSingleton<IAlertEventQueue, AlertEventQueue>();
-builder.Services.AddScoped<IVerificationService, VerificationService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<ISmsFallbackAuthService, SmsFallbackAuthService>();
-builder.Services.AddHostedService<VerificationWorker>();
-builder.Services.AddHostedService<NotificationWorker>();
+builder.Services.AddScoped<CreateAlertHandler>();
 
 var app = builder.Build();
 

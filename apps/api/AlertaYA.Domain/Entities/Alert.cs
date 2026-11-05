@@ -15,4 +15,5 @@ public class Alert
     public DateTimeOffset? CreadoEn { get; set; }
     public DateTimeOffset? ActualizadoEn { get; set; }
     public Guid? ClientGeneratedId { get; set; }
+    public DateTimeOffset? FinalizadaEn { get; set; }
 }
