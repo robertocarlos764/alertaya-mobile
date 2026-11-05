@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: SOS de punta a punta
 status: executing
-stopped_at: Completed 01-05-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
-last_updated: "2026-11-05T14:00:00.000Z"
+stopped_at: Completed 01-06-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
+last_updated: "2026-11-05T14:24:06.722Z"
 last_activity: 2026-11-05
-last_activity_desc: 01-05 completo (fase1_sos aplicada al remoto, pgTAP 28/28)
-state_head: d697c7ffd9bd1df04c56a36e3343d9705f365362
+last_activity_desc: 01-06 completo (servidor del SOS: alerta+enlace+entregas, status/active, ProblemDetails, contactos, openapi.json)
+state_head: 2af787852f0f61b9df825c0562eb2c916c2211fa
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 16
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-10-06)
 ## Current Position
 
 Phase: 01 (SOS de punta a punta) — EXECUTING
-Plan: 1 of 16
-Status: Executing Phase 01
-Last activity: 2026-11-05 - Completed 01-05: fase1_sos aplicada al remoto con aprobacion de Roberto (aplicar-6), pgTAP 28/28 y catalogo regenerado
+Plan: 2 of 16
+Status: Ready to execute
+Last activity: 2026-11-05 - Completed 01-06: POST /api/alerts transaccional e idempotente, estado real por contacto, ProblemDetails, contactos E.164 y openapi.json; suite completa en verde contra el remoto
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P04 | 15min | 2 tasks | 35 files |
+| Phase 01 P06 | 28min | 3 tasks | 43 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,10 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-03: ensayo de la migracion (begin/rollback) adelantado desde 01-05 con el control total de SQL que dio Roberto; el push real sigue en 01-05
 - [Phase 01]: 01-03: el remoto tiene el event trigger ensure_rls (RLS automatico en tablas nuevas de public)
 - [Phase 01]: 01-05: aplicar-6; Auth ya tenia Confirm email desactivado y minimo 6, no se llamo al PATCH
+- [Phase 01]: 01-06: data source de Npgsql singleton con UseNetTopologySuite (escribir Point en geography fallaba)
+- [Phase 01]: 01-06: AlertEstados.EnCurso (activa, verificando, escalada) define alerta activa y estados que aceptan ubicacion
+- [Phase 01]: 01-06: openapi.json con filtro RequeridosNoAnulables y allOf para refs anulables (Swashbuckle 6.6.2)
+- [Phase 01]: 01-06: regla de Roberto, comentarios minimos (solo porques no obvios), prevalece sobre XML docs del CLAUDE.md
 
 ### Pending Todos
 
@@ -111,6 +116,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-05T14:00:00.000Z
-Stopped at: Completed 01-05-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
+Last session: 2026-11-05T14:24:06.661Z
+Stopped at: Completed 01-06-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
 Resume file: None

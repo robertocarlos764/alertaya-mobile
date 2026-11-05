@@ -16,15 +16,15 @@
 
 ### Contactos (CONT)
 
-- [ ] **CONT-01**: El usuario puede agregar, editar y eliminar contactos de emergencia (nombre, teléfono, relación)
+- [x] **CONT-01**: El usuario puede agregar, editar y eliminar contactos de emergencia (nombre, teléfono, relación)
 - [ ] **CONT-02**: Al agregarse, el contacto recibe un SMS que le informa que fue designado contacto de emergencia de esa persona
 
 ### SOS núcleo (SOS)
 
-- [ ] **SOS-01**: El usuario puede disparar una alerta con el botón SOS de la app
+- [x] **SOS-01**: El usuario puede disparar una alerta con el botón SOS de la app
 - [ ] **SOS-02**: Toda activación inicia una cuenta regresiva con vibración (duración configurable) que el usuario puede cancelar antes de que se envíe
-- [ ] **SOS-03**: La alerta queda guardada en el teléfono antes de cualquier llamada de red y se reintenta sin duplicarse (clientGeneratedId) hasta que el servidor la confirme
-- [ ] **SOS-04**: El usuario ve una pantalla de alerta activa con el estado real por contacto y canal (en cola, enviado, entregado, fallido); nunca se muestra "entregado" sin confirmación del proveedor
+- [x] **SOS-03**: La alerta queda guardada en el teléfono antes de cualquier llamada de red y se reintenta sin duplicarse (clientGeneratedId) hasta que el servidor la confirme
+- [x] **SOS-04**: El usuario ve una pantalla de alerta activa con el estado real por contacto y canal (en cola, enviado, entregado, fallido); nunca se muestra "entregado" sin confirmación del proveedor
 - [ ] **SOS-05**: El usuario puede cancelar una alerta activa ingresando su PIN; queda marcada como falsa alarma y los contactos reciben aviso de cancelación
 - [ ] **SOS-06**: En modo silencioso la cuenta regresiva y la alerta corren sin sonido ni pantalla visible (solo vibración discreta configurable)
 
@@ -38,7 +38,7 @@
 ### Ubicación (UBIC)
 
 - [ ] **UBIC-01**: Durante una alerta activa, la ubicación se envía periódicamente aunque la pantalla esté apagada o la app cerrada
-- [ ] **UBIC-02**: Si no hay GPS, la alerta se crea igual con "ubicación pendiente"; nunca se usa una ubicación sustituta, y se muestran precisión y antigüedad de cada punto
+- [x] **UBIC-02**: Si no hay GPS, la alerta se crea igual con "ubicación pendiente"; nunca se usa una ubicación sustituta, y se muestran precisión y antigüedad de cada punto
 - [ ] **UBIC-03**: En el historial, el usuario puede ver el trayecto recorrido durante cada alerta
 
 ### Activadores sin abrir la app (ACTV)
@@ -111,12 +111,12 @@
 | AUTH-04 | Phase 6 | Pending |
 | AUTH-05 | Phase 2 | Pending |
 | AUTH-06 | Phase 2 | Pending |
-| CONT-01 | Phase 1 | Pending |
+| CONT-01 | Phase 1 | Complete |
 | CONT-02 | Phase 6 | Pending |
-| SOS-01 | Phase 1 | Pending |
+| SOS-01 | Phase 1 | Complete |
 | SOS-02 | Phase 1 | Pending |
-| SOS-03 | Phase 1 | Pending |
-| SOS-04 | Phase 1 | Pending |
+| SOS-03 | Phase 1 | Complete |
+| SOS-04 | Phase 1 | Complete |
 | SOS-05 | Phase 5 | Pending |
 | SOS-06 | Phase 3 | Pending |
 | NOTI-01 | Phase 1 | Pending |
@@ -124,7 +124,7 @@
 | NOTI-03 | Phase 1 | Pending |
 | NOTI-04 | Phase 1 | Pending |
 | UBIC-01 | Phase 2 | Pending |
-| UBIC-02 | Phase 1 | Pending |
+| UBIC-02 | Phase 1 | Complete |
 | UBIC-03 | Phase 3 | Pending |
 | ACTV-01 | Phase 2 | Pending |
 | ACTV-02 | Phase 2 | Pending |
@@ -144,6 +144,7 @@
 | HIST-02 | Phase 3 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 37 total
 - Mapped to phases: 37
 - Unmapped: 0 ✓
