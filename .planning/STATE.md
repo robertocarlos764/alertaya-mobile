@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: SOS de punta a punta
 status: executing
-stopped_at: Completed 01-03-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
+stopped_at: Completed 01-05-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
 last_updated: "2026-11-05T14:00:00.000Z"
 last_activity: 2026-11-05
-last_activity_desc: 01-03 completo (baseline, migracion fase1_sos, pgTAP 28/28 en ensayo)
+last_activity_desc: 01-05 completo (fase1_sos aplicada al remoto, pgTAP 28/28)
 state_head: d697c7ffd9bd1df04c56a36e3343d9705f365362
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 16
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-06)
 Phase: 01 (SOS de punta a punta) — EXECUTING
 Plan: 1 of 16
 Status: Executing Phase 01
-Last activity: 2026-11-05 - Completed 01-03: baseline del remoto, migracion fase1_sos y pgTAP (ensayo 28/28, remoto sin cambios)
+Last activity: 2026-11-05 - Completed 01-05: fase1_sos aplicada al remoto con aprobacion de Roberto (aplicar-6), pgTAP 28/28 y catalogo regenerado
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -75,6 +75,7 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-04: finalizada (Estoy a salvo, D-09) terminal desde pendiente/activa/verificando/escalada
 - [Phase 01]: 01-03: ensayo de la migracion (begin/rollback) adelantado desde 01-05 con el control total de SQL que dio Roberto; el push real sigue en 01-05
 - [Phase 01]: 01-03: el remoto tiene el event trigger ensure_rls (RLS automatico en tablas nuevas de public)
+- [Phase 01]: 01-05: aplicar-6; Auth ya tenia Confirm email desactivado y minimo 6, no se llamo al PATCH
 
 ### Pending Todos
 
@@ -111,5 +112,5 @@ Items acknowledged and deferred at milestone close, most recent first:
 ## Session Continuity
 
 Last session: 2026-11-05T14:00:00.000Z
-Stopped at: Completed 01-03-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
+Stopped at: Completed 01-05-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
 Resume file: None
