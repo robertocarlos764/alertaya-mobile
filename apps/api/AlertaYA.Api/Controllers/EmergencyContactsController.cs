@@ -15,7 +15,6 @@ namespace AlertaYA.Api.Controllers;
 [Authorize]
 public class EmergencyContactsController : ControllerBase
 {
-    // Tope contra el abuso del canal SMS (Pitfall 18).
     public const int MaximoContactos = 10;
 
     private const string MensajeTelefono = "Ingresa un celular colombiano de 10 dígitos (ej. 300 123 4567).";

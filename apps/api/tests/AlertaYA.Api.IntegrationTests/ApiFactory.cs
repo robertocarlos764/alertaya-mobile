@@ -18,7 +18,6 @@ public class ApiFactory : WebApplicationFactory<Program>
     public static readonly string TestSecretoSeguimiento = Convert.ToBase64String(
         System.Text.Encoding.UTF8.GetBytes("secreto-de-seguimiento-de-prueba"));
 
-    // Sin la variable no se fija cadena: las pruebas de humo no tocan la BD (D-22).
     public static string? ConnectionString => Environment.GetEnvironmentVariable("ALERTAYA_TEST_DB");
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
