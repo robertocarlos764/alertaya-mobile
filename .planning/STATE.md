@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: SOS de punta a punta
 status: executing
-stopped_at: Completed 01-04-PLAN.md (01-01 sigue pendiente por tramites externos)
-last_updated: "2026-10-15T13:10:35.578Z"
-last_activity: 2026-10-14
-last_activity_desc: Phase 01 execution started
+stopped_at: Completed 01-03-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
+last_updated: "2026-11-05T14:00:00.000Z"
+last_activity: 2026-11-05
+last_activity_desc: 01-03 completo (baseline, migracion fase1_sos, pgTAP 28/28 en ensayo)
 state_head: d697c7ffd9bd1df04c56a36e3343d9705f365362
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 16
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-06)
 Phase: 01 (SOS de punta a punta) — EXECUTING
 Plan: 1 of 16
 Status: Executing Phase 01
-Last activity: 2026-10-14 - Completed quick task 261014-j0a: pulir prototipo (web, animaciones, pantallas nuevas)
+Last activity: 2026-11-05 - Completed 01-03: baseline del remoto, migracion fase1_sos y pgTAP (ensayo 28/28, remoto sin cambios)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -73,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-04: apps/api en cuatro proyectos (Domain/Application/Infrastructure/Api) junto al existente, sin src/; handlers usan IApplicationDbContext
 - [Phase 01]: 01-04: GET /health (anonimo, Healthy, sin BD) se adelanto desde 01-01 Tarea 1 porque la prueba de humo lo necesita
 - [Phase 01]: 01-04: finalizada (Estoy a salvo, D-09) terminal desde pendiente/activa/verificando/escalada
+- [Phase 01]: 01-03: ensayo de la migracion (begin/rollback) adelantado desde 01-05 con el control total de SQL que dio Roberto; el push real sigue en 01-05
+- [Phase 01]: 01-03: el remoto tiene el event trigger ensure_rls (RLS automatico en tablas nuevas de public)
 
 ### Pending Todos
 
@@ -81,7 +83,7 @@ None yet.
 ### Blockers/Concerns
 
 - [Fase 1]: Trámites externos del día 1 (número/remitente Twilio para Colombia, hosting HTTPS always-on del API, dev build Android) bloquean el demo si se retrasan
-- [Fase 1]: Toda migración se aplica al proyecto remoto `vzyasmeeyvbkpoiosses` solo con confirmación de Roberto
+- [Fase 1]: Toda migración se aplica al proyecto remoto `vzyasmeeyvbkpoiosses` solo con confirmación de Roberto; el proyecto free se pausa por inactividad (restaurado el 2026-11-05)
 - [Fase 2]: Fiabilidad de Headless JS desde proceso frío y matrices OEM (Samsung/Xiaomi) sin verificar; spike de día 1
 - [Fase 3/7]: HIST-02 pide que la palabra clave persista entre dispositivos y nunca esté en texto plano; con solo hash no se puede usar para reconocer en el teléfono. Decidir en discuss de la Fase 7 (cifrado reversible vs. solo en el dispositivo)
 - [Calendario]: 4 fases en ~7 días hábiles hasta el demo; si se aprieta, la Fase 3 es la más recortable
@@ -108,6 +110,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-15T13:10:35.486Z
-Stopped at: Completed 01-04-PLAN.md (01-01 sigue pendiente por tramites externos)
+Last session: 2026-11-05T14:00:00.000Z
+Stopped at: Completed 01-03-PLAN.md (01-01 sigue pendiente por ngrok/Twilio)
 Resume file: None
