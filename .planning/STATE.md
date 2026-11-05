@@ -77,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-03: ensayo de la migracion (begin/rollback) adelantado desde 01-05 con el control total de SQL que dio Roberto; el push real sigue en 01-05
 - [Phase 01]: 01-03: el remoto tiene el event trigger ensure_rls (RLS automatico en tablas nuevas de public)
 - [Phase 01]: 01-05: aplicar-6; Auth ya tenia Confirm email desactivado y minimo 6, no se llamo al PATCH
+- [Phase 01]: D-23 reemplaza a D-18: API en Render free con Docker (PC de la empresa no permite instalar ngrok); keep-alive con cron externo
 - [Phase 01]: 01-06: data source de Npgsql singleton con UseNetTopologySuite (escribir Point en geography fallaba)
 - [Phase 01]: 01-06: AlertEstados.EnCurso (activa, verificando, escalada) define alerta activa y estados que aceptan ubicacion
 - [Phase 01]: 01-06: openapi.json con filtro RequeridosNoAnulables y allOf para refs anulables (Swashbuckle 6.6.2)

@@ -54,7 +54,7 @@ Copia `AlertaYA.Api/appsettings.Example.json` → `AlertaYA.Api/appsettings.json
 | `Jwt__SigningKey` | Solo si el proyecto usa el JWT Secret legacy (HS256) |
 | `Jwt__Issuer` | `https://<project-ref>.supabase.co/auth/v1` (igual que Authority) |
 | `Jwt__Audience` | `authenticated` (default) |
-| `Public__ApiBaseUrl` | URL pública del API (`https://<NGROK_DOMAIN>`) |
+| `Public__ApiBaseUrl` | URL pública del API (`https://<servicio>.onrender.com`) |
 | `Public__WebBaseUrl` | URL de la página pública de seguimiento; el enlace es `{WebBaseUrl}/t/{token}` |
 | `Public__SecretoSeguimiento` | Secreto HMAC del token de seguimiento: base64 de al menos 32 bytes |
 
@@ -88,26 +88,27 @@ Las pruebas `Category=Integration` corren contra la BD remota de Supabase (D-22)
 
 En `Development` se habilita Swagger en `/swagger`.
 
-### Correr el API para la demo (ngrok)
+### Despliegue en Render (D-23)
 
-El API corre en el PC y se expone en un dominio HTTPS fijo y gratuito de ngrok (D-18).
+El API corre en Render (plan gratuito, Docker) con la URL fija `https://<servicio>.onrender.com`, que va en el APK, en Vercel y en el StatusCallback de Twilio.
 
-1. Instalar ngrok: `winget install ngrok.ngrok`
-2. Autenticarlo una vez: `ngrok config add-authtoken <token>` (dashboard.ngrok.com → Your Authtoken)
-3. Definir `NGROK_DOMAIN` con el dominio estático gratuito, sin `https://` (dashboard.ngrok.com → Domains)
-4. Evitar que el PC se suspenda y sincronizar la hora (el JWT tolera solo 30 s de desfase):
-   ```powershell
-   powercfg /change standby-timeout-ac 0
-   w32tm /resync
-   ```
-5. Desde la raíz del repo:
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-api.ps1
-   ```
+1. render.com → **New → Web Service** → conectar el repo de GitHub, rama `dev`.
+2. **Root Directory:** `apps/api` · **Runtime:** Docker · **Instance type:** Free · **Health Check Path:** `/health`.
+3. Variables de entorno:
 
-El script arranca el API en Release y en `Production` (sin Swagger) en `http://localhost:5016`, espera a `/health` y abre el túnel. La URL pública `https://<NGROK_DOMAIN>` es la que va en el APK, en Vercel y en el StatusCallback de Twilio. Al cerrar ngrok (Ctrl+C) se detiene el API.
+   | Variable | Valor |
+   |---|---|
+   | `ASPNETCORE_ENVIRONMENT` | `Production` |
+   | `ConnectionStrings__Default` | cadena Npgsql del Session pooler (la misma de `ALERTAYA_TEST_DB`) |
+   | `Jwt__Authority` / `Jwt__Issuer` | `https://<project-ref>.supabase.co/auth/v1` |
+   | `Jwt__Audience` | `authenticated` |
+   | `Public__ApiBaseUrl` | `https://<servicio>.onrender.com` |
+   | `Public__WebBaseUrl` | `https://<proyecto>.vercel.app` |
+   | `Public__SecretoSeguimiento` | base64 de 32 bytes aleatorios |
 
-Comprobación: `curl -fsS https://<NGROK_DOMAIN>/health` → `Healthy`.
+4. El plan gratuito duerme el servicio tras 15 min sin tráfico (despertar tarda 30–60 s). Un cron gratuito externo (cron-job.org) hace `GET /health` cada 10 min para mantenerlo despierto; el outbox vive en Postgres, así que un reinicio no pierde SMS.
+
+Comprobación: `curl -fsS https://<servicio>.onrender.com/health` → `Healthy`.
 
 ---
 
