@@ -16,6 +16,11 @@ public static class AlertEstados
     };
 
     public static bool EsValido(string? valor) => valor is not null && Todos.Contains(valor);
+
+    public static readonly string[] EnCurso =
+    {
+        Activa, Verificando, Escalada,
+    };
 }
 
 public static class AlertCanalActivacion

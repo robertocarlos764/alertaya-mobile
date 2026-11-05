@@ -112,6 +112,7 @@ public class AppDbContext : DbContext, IApplicationDbContext
                 .HasColumnType("numeric");
             e.Property(l => l.Fuente).HasColumnName("fuente").IsRequired();
             e.Property(l => l.CreadoEn).HasColumnName("creado_en");
+            e.Property(l => l.CapturadaEn).HasColumnName("capturada_en");
 
             e.HasIndex(l => l.AlertId);
             e.HasOne<Alert>()

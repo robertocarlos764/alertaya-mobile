@@ -17,19 +17,19 @@ Sigue la especificación [`Spec_Backend_App_Usuario.md`](./Spec_Backend_App_Usua
 ```
 AlertaYA.sln                 Api -> Infrastructure -> Application -> Domain
 AlertaYA.Domain/             AlertValues, AlertStateMachine, GeoPointExtensions, Entities/ (sin I/O)
-AlertaYA.Application/        Abstractions/IApplicationDbContext (puerto de persistencia)
+AlertaYA.Application/        Abstractions/IApplicationDbContext, Alerts/ (CreateAlertHandler, GetAlertStatusHandler), Options/PublicOptions
 AlertaYA.Infrastructure/     Persistence/AppDbContext (EF Core + Npgsql, mapeo Fluent API)
 AlertaYA.Api/
   Controllers/        ProfilesController, EmergencyContactsController, AlertsController
   Extensions/         Extracción del user_id del JWT
   Models/DTOs/        Requests/Responses
-  Options/            Opciones fuertemente tipadas (Jwt, SmsFallback)
-  Services/           Cola Channel<T>, verificación heurística, notificaciones, auth SMS
-  Services/Background VerificationWorker + NotificationWorker (BackgroundService)
-  Program.cs          JWT, DI, EF Core, workers, GET /health
+  Errors/             Problemas (ProblemDetails con code) y ManejadorExcepciones (IExceptionHandler)
+  OpenApi/            Filtro que marca como required las propiedades no anulables
+  Options/            Opciones fuertemente tipadas (Jwt)
+  Program.cs          JWT, DI, EF Core, ProblemDetails, GET /health
 tests/
   AlertaYA.Domain.Tests/          Reglas puras (máquina de estados)
-  AlertaYA.Api.IntegrationTests/  WebApplicationFactory (prueba de humo Category=Smoke)
+  AlertaYA.Api.IntegrationTests/  WebApplicationFactory: humo (Category=Smoke) e integración contra la BD remota (Category=Integration)
 ```
 
 ---
@@ -54,8 +54,9 @@ Copia `AlertaYA.Api/appsettings.Example.json` → `AlertaYA.Api/appsettings.json
 | `Jwt__SigningKey` | Solo si el proyecto usa el JWT Secret legacy (HS256) |
 | `Jwt__Issuer` | `https://<project-ref>.supabase.co/auth/v1` (igual que Authority) |
 | `Jwt__Audience` | `authenticated` (default) |
-| `SmsFallback__Secret` | Secreto compartido para el hash del fallback SMS |
-| `SmsFallback__MaxAgeSeconds` | Antigüedad máxima del payload SMS (anti-replay), default `300` |
+| `Public__ApiBaseUrl` | URL pública del API (`https://<NGROK_DOMAIN>`) |
+| `Public__WebBaseUrl` | URL de la página pública de seguimiento; el enlace es `{WebBaseUrl}/t/{token}` |
+| `Public__SecretoSeguimiento` | Secreto HMAC del token de seguimiento: base64 de al menos 32 bytes |
 
 #### Dónde encontrarlas en el panel de Supabase (UI 2025+)
 
@@ -80,7 +81,10 @@ El esquema lo manda `supabase/migrations` (SQL versionado), incluida la columna 
 dotnet build AlertaYA.sln
 dotnet run --project AlertaYA.Api        # escucha en http://localhost:5000
 dotnet test AlertaYA.sln --filter "Category!=Integration"   # humo + dominio, sin BD
+dotnet test AlertaYA.sln                                     # todo, con ALERTAYA_TEST_DB
 ```
+
+Las pruebas `Category=Integration` corren contra la BD remota de Supabase (D-22) con la cadena de `ALERTAYA_TEST_DB` (variable de usuario, nunca en el repo). Corren en serie y solo con usuarios `it-alertaya-<guid>@example.com`, que se borran al empezar y al terminar. Fallan con un mensaje claro si falta la variable, si el API real está corriendo en `localhost:5016`, si el reloj del PC difiere más de 2 s del de la BD o si hay entregas pendientes de usuarios reales.
 
 En `Development` se habilita Swagger en `/swagger`.
 
@@ -128,28 +132,30 @@ Todos requieren `Authorization: Bearer {jwt}` salvo el marcado como público.
 ### Alertas — `/api/alerts`
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/api/alerts` | Crea alerta. **Idempotente** vía `clientGeneratedId`. Body: `canalActivacion` (`boton_pulsado` \| `voz` \| `boton_fisico`), `clientGeneratedId` (UUID obligatorio), opcionales `ubicacionInicial {lat, lon}`, `precisionMetros`, `fuente` (`gps` \| `celular` \| `cache`). Estado inicial: `pendiente`. Responde antes de que termine la verificación/notificación asíncrona |
-| PATCH | `/api/alerts/{id}` | Actualiza estado (`estado`). Valida la máquina de estados |
+| POST | `/api/alerts` | Crea la alerta ya `activa`, su enlace de seguimiento y una entrega `en_cola` por contacto en una transacción. **Idempotente** vía `clientGeneratedId` (obligatorio). Body: `canalActivacion` (`boton_pulsado` \| `voz` \| `boton_fisico`), opcionales `ubicacionInicial {lat, lon}` (se rechaza fuera de rango o `(0,0)`), `precisionMetros`, `fuente` (`gps` \| `celular` \| `cache`). El 201 significa guardada y en cola, no enviada |
 | POST | `/api/alerts/{id}/location` | Registra ubicación en el historial (`alert_locations`) y actualiza `alerts.ubicacion` en la misma transacción. Solo en estados activos |
-| GET | `/api/alerts/{id}/status` | Estado actual de la alerta (valida pertenencia) |
+| GET | `/api/alerts/{id}/status` | Estado de la alerta, `serverNow`, `trackingUrl`, última ubicación confirmada y el estado real de cada contacto (`en_cola`, `enviando`, `reintento`, `enviado`, `entregado`, `fallido`, `cancelado`). 404 si no es del usuario |
+| GET | `/api/alerts/active` | La alerta en curso del usuario (mismo cuerpo que `/status`) o 204 |
 | GET | `/api/alerts` | Historial de alertas del usuario (más reciente primero) |
-| POST | `/api/alerts/sms-fallback` | **Público (sin JWT).** Payload ya parseado: `userId`, `lat`, `lon`, `timestamp`, `hash` (HMAC), opcionales `clientGeneratedId`, `canalActivacion`. Rechaza hash inválido o expirado |
 
 ### Estados de alerta
 `pendiente` → `activa` | `descartada` | `finalizada`; `activa` → `verificando` | `finalizada`; `verificando` → `escalada` | `atendida` | `descartada` | `finalizada`; `escalada` → `atendida` | `descartada` | `finalizada`. `atendida`, `descartada` y `finalizada` ("Estoy a salvo", D-09) son terminales. Cualquier otra transición se rechaza con error claro. La validación vive en `AlertaYA.Domain/AlertStateMachine.cs`.
 
 ---
 
-## Procesamiento asíncrono
+## Errores
 
-Al crear una alerta, el controller escribe en `alerts` de forma **síncrona** y publica un `AlertCreatedEvent` en una cola en memoria (`Channel<T>`). Dos workers la consumen en background:
+Todos los errores son ProblemDetails (RFC 9457, `application/problem+json`) con la extensión `code`: `validation_error`, `alert_not_found`, `contact_not_found`, `duplicate_contact`, `contact_limit`, `alert_finalized`, `rate_limited`, `internal_error`. Un 500 nunca incluye el mensaje de la excepción.
 
-- **`VerificationWorker`**: ejecuta la verificación heurística (reglas documentadas en `Services/VerificationService.cs`), guarda en `verification_logs` y actualiza `nivel_prioridad_ia` y `estado`.
-- **`NotificationWorker`**: envía (stub) notificaciones a todos los contactos del usuario con la ubicación disponible.
+## Contrato OpenAPI
 
-Ninguno bloquea la respuesta de `POST /api/alerts`. La cola es interna (sin infraestructura de mensajería) para esta fase.
+`openapi.json` está versionado y lo consume el cliente tipado de la app. Todo plan que cambie el contrato lo reexporta desde `apps/api`:
 
-> Nota de diseño: la máquina de estados no permite `pendiente → verificando`; si la heurística marca un posible falso positivo en una alerta recién creada, el worker la deja `activa` registrando `nivel_prioridad_ia = posible_falso_positivo` (ver comentario en `VerificationWorker.cs`).
+```bash
+dotnet tool restore
+dotnet build AlertaYA.Api -c Release
+dotnet tool run swagger tofile --output openapi.json AlertaYA.Api/bin/Release/net8.0/AlertaYA.Api.dll v1
+```
 
 ---
 
@@ -158,7 +164,7 @@ Ninguno bloquea la respuesta de `POST /api/alerts`. La cola es interna (sin infr
 - **JWT**: el backend valida firma (HS256 con el JWT Secret), issuer y audiencia de Supabase en cada request. El `user_id` siempre se extrae del claim `sub` — nunca de un valor del body o la URL.
 - **Autorización por recurso**: cada consulta cruza el recurso contra el `user_id` del token (los endpoints devuelven 404 si el recurso no pertenece al usuario).
 - **RLS es segunda capa**: como el backend se conecta con credenciales de rol administrador (no pasa por RLS), toda la autorización real está implementada en código.
-- **SMS fallback**: sin JWT a propósito (puede no haber datos móviles), pero con autenticación ligera por HMAC + anti-replay del timestamp.
+- **Enlace de seguimiento**: token de 128 bits derivado por HMAC con `Public__SecretoSeguimiento`; en BD solo su SHA-256.
 
 ---
 

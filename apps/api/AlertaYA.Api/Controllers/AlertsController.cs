@@ -16,11 +16,6 @@ namespace AlertaYA.Api.Controllers;
 [Authorize]
 public class AlertsController : ControllerBase
 {
-    private static readonly string[] EstadosReceptoresDeUbicacion =
-    {
-        AlertEstados.Activa, AlertEstados.Verificando, AlertEstados.Escalada,
-    };
-
     private readonly AppDbContext _db;
 
     public AlertsController(AppDbContext db)
@@ -29,8 +24,6 @@ public class AlertsController : ControllerBase
     }
 
     private Guid GetUserIdOrFail() => User.GetUserId() ?? throw new UnauthorizedAccessException();
-
-    private bool EsEstadoReceptorDeUbicacion(string estado) => EstadosReceptoresDeUbicacion.Contains(estado);
 
     // El 201 significa "guardada y en cola", no "enviada": el estado real sale de /status.
     [HttpPost]
@@ -59,7 +52,11 @@ public class AlertsController : ControllerBase
     }
 
     [HttpPost("{id:guid}/location")]
-    public async Task<ActionResult<AlertStatusResponse>> AddLocation(Guid id, [FromBody] UpdateAlertLocationRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<AlertStatusResponse>> AddLocation(
+        Guid id,
+        [FromBody] UpdateAlertLocationRequest request,
+        [FromServices] GetAlertStatusHandler estado,
+        CancellationToken cancellationToken)
     {
         Guid userId;
         try
@@ -79,7 +76,7 @@ public class AlertsController : ControllerBase
             return Problemas.AlertaNoEncontrada();
         }
 
-        if (!EsEstadoReceptorDeUbicacion(alerta.Estado))
+        if (!AlertEstados.EnCurso.Contains(alerta.Estado))
         {
             return Problemas.AlertaFinalizada($"La alerta está en estado '{alerta.Estado}' y no acepta actualizaciones de ubicación.");
         }
@@ -109,11 +106,14 @@ public class AlertsController : ControllerBase
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return Ok(AlertStatusResponse.From(alerta));
+        return Ok(AlertStatusResponse.From((await estado.ObtenerAsync(userId, alerta.Id, cancellationToken))!));
     }
 
     [HttpGet("{id:guid}/status")]
-    public async Task<ActionResult<AlertStatusResponse>> GetStatus(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<AlertStatusResponse>> GetStatus(
+        Guid id,
+        [FromServices] GetAlertStatusHandler handler,
+        CancellationToken cancellationToken)
     {
         Guid userId;
         try
@@ -125,16 +125,30 @@ public class AlertsController : ControllerBase
             return Unauthorized();
         }
 
-        var alerta = await _db.Alerts
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId, cancellationToken);
+        var estado = await handler.ObtenerAsync(userId, id, cancellationToken);
+        return estado is null ? Problemas.AlertaNoEncontrada() : Ok(AlertStatusResponse.From(estado));
+    }
 
-        if (alerta is null)
+    // 204 sin alerta en curso: la app solo reabre la pantalla de alerta activa con un 200 (D-12).
+    [HttpGet("active")]
+    [ProducesResponseType(typeof(AlertStatusResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<AlertStatusResponse>> GetActive(
+        [FromServices] GetAlertStatusHandler handler,
+        CancellationToken cancellationToken)
+    {
+        Guid userId;
+        try
         {
-            return Problemas.AlertaNoEncontrada();
+            userId = GetUserIdOrFail();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
         }
 
-        return Ok(AlertStatusResponse.From(alerta));
+        var estado = await handler.ObtenerActivaAsync(userId, cancellationToken);
+        return estado is null ? NoContent() : Ok(AlertStatusResponse.From(estado));
     }
 
     [HttpGet]

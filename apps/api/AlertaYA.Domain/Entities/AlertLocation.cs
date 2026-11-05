@@ -10,4 +10,5 @@ public class AlertLocation
     public decimal? PrecisionMetros { get; set; }
     public string Fuente { get; set; } = FuenteUbicacion.Gps;
     public DateTimeOffset? CreadoEn { get; set; }
+    public DateTimeOffset? CapturadaEn { get; set; }
 }

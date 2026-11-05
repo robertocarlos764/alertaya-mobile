@@ -1,5 +1,6 @@
 using System.Text;
 using AlertaYA.Api.Errors;
+using AlertaYA.Api.OpenApi;
 using AlertaYA.Api.Options;
 using AlertaYA.Application.Abstractions;
 using AlertaYA.Application.Alerts;
@@ -25,8 +26,15 @@ builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = 
         ctx.ProblemDetails.Extensions.TryAdd("code", codigo);
     }
 });
+builder.Services.AddExceptionHandler<ManejadorExcepciones>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SupportNonNullableReferenceTypes();
+    // Sin allOf, un $ref anulable (ultimaUbicacion) sale sin "nullable" y el cliente TS no admite el null.
+    options.UseAllOfToExtendReferenceSchemas();
+    options.SchemaFilter<RequeridosNoAnulables>();
+});
 
 // EF Core contra PostgreSQL (Supabase). PostGIS via NetTopologySuite para geography(point, 4326).
 // Con UseNpgsql(cadena) el plugin NTS no llegaba al data source y escribir un Point en geography fallaba.
@@ -91,6 +99,7 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<CreateAlertHandler>();
+builder.Services.AddScoped<GetAlertStatusHandler>();
 
 var app = builder.Build();
 
@@ -100,6 +109,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 
