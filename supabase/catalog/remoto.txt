@@ -1,0 +1,190 @@
+columna	public.alert_locations.alert_id	uuid not null
+columna	public.alert_locations.capturada_en	timestamp with time zone
+columna	public.alert_locations.creado_en	timestamp with time zone default now()
+columna	public.alert_locations.fuente	text not null
+columna	public.alert_locations.id	uuid not null default gen_random_uuid()
+columna	public.alert_locations.precision_metros	numeric
+columna	public.alert_locations.ubicacion	geography(Point,4326) not null
+columna	public.alerts.actualizado_en	timestamp with time zone default now()
+columna	public.alerts.canal_activacion	text not null
+columna	public.alerts.client_generated_id	uuid
+columna	public.alerts.creado_en	timestamp with time zone default now()
+columna	public.alerts.estado	text not null default 'pendiente'::text
+columna	public.alerts.finalizada_en	timestamp with time zone
+columna	public.alerts.id	uuid not null default gen_random_uuid()
+columna	public.alerts.nivel_prioridad_ia	text
+columna	public.alerts.ubicacion	geography(Point,4326)
+columna	public.alerts.ubicacion_fuente	text
+columna	public.alerts.ubicacion_precision_metros	numeric
+columna	public.alerts.user_id	uuid not null
+columna	public.cais.comandante_nombre	text not null
+columna	public.cais.creado_en	timestamp with time zone default now()
+columna	public.cais.direccion	text not null
+columna	public.cais.id	uuid not null default gen_random_uuid()
+columna	public.cais.nombre	text not null
+columna	public.cais.telefono	text not null
+columna	public.cais.ubicacion	geography(Point,4326)
+columna	public.emergency_contacts.creado_en	timestamp with time zone default now()
+columna	public.emergency_contacts.id	uuid not null default gen_random_uuid()
+columna	public.emergency_contacts.nombre	text not null
+columna	public.emergency_contacts.relacion	text
+columna	public.emergency_contacts.telefono	text not null
+columna	public.emergency_contacts.user_id	uuid not null
+columna	public.notification_deliveries.actualizado_en	timestamp with time zone not null default now()
+columna	public.notification_deliveries.alert_id	uuid not null
+columna	public.notification_deliveries.canal	text not null default 'sms'::text
+columna	public.notification_deliveries.codigo_error	integer
+columna	public.notification_deliveries.contact_id	uuid
+columna	public.notification_deliveries.contacto_nombre	text not null
+columna	public.notification_deliveries.contacto_telefono	text not null
+columna	public.notification_deliveries.creado_en	timestamp with time zone not null default now()
+columna	public.notification_deliveries.estado	text not null default 'en_cola'::text
+columna	public.notification_deliveries.id	uuid not null default gen_random_uuid()
+columna	public.notification_deliveries.intentos	integer not null default 0
+columna	public.notification_deliveries.lease_hasta	timestamp with time zone
+columna	public.notification_deliveries.proveedor_sid	text
+columna	public.notification_deliveries.proximo_intento_en	timestamp with time zone not null default now()
+columna	public.notification_deliveries.tipo	text not null
+columna	public.officer_decisions.accion_tomada	text
+columna	public.officer_decisions.alert_id	uuid not null
+columna	public.officer_decisions.creado_en	timestamp with time zone default now()
+columna	public.officer_decisions.decision	text not null
+columna	public.officer_decisions.id	uuid not null default gen_random_uuid()
+columna	public.officer_decisions.officer_id	uuid not null
+columna	public.officer_decisions.tiempo_respuesta_segundos	integer
+columna	public.officer_duty_log.cai_id	uuid
+columna	public.officer_duty_log.creado_en	timestamp with time zone default now()
+columna	public.officer_duty_log.id	uuid not null default gen_random_uuid()
+columna	public.officer_duty_log.officer_id	uuid not null
+columna	public.officer_duty_log.tipo_evento	text not null
+columna	public.officers.activo	boolean not null default true
+columna	public.officers.cai_id	uuid
+columna	public.officers.creado_en	timestamp with time zone default now()
+columna	public.officers.id	uuid not null
+columna	public.officers.nombre	text not null
+columna	public.officers.rol	text not null default 'oficial'::text
+columna	public.profiles.correo	text
+columna	public.profiles.creado_en	timestamp with time zone default now()
+columna	public.profiles.id	uuid not null
+columna	public.profiles.modo_silencioso	boolean not null default false
+columna	public.profiles.nombre	text not null
+columna	public.profiles.palabra_clave	text
+columna	public.profiles.telefono	text not null
+columna	public.profiles.ventana_confirmacion_segundos	integer not null default 5
+columna	public.tracking_links.alert_id	uuid not null
+columna	public.tracking_links.creado_en	timestamp with time zone not null default now()
+columna	public.tracking_links.id	uuid not null default gen_random_uuid()
+columna	public.tracking_links.revocado_en	timestamp with time zone
+columna	public.tracking_links.token_hash	bytea not null
+columna	public.verification_logs.alert_id	uuid not null
+columna	public.verification_logs.audio_ambiente_score	numeric
+columna	public.verification_logs.consistencia_ubicacion	boolean
+columna	public.verification_logs.creado_en	timestamp with time zone default now()
+columna	public.verification_logs.hora_del_dia	time without time zone
+columna	public.verification_logs.id	uuid not null default gen_random_uuid()
+columna	public.verification_logs.movimiento_score	numeric
+columna	public.verification_logs.nivel_asignado	text
+extension	pg_stat_statements	extensions
+extension	pgcrypto	extensions
+extension	pgtap	extensions
+extension	plpgsql	pg_catalog
+extension	postgis	extensions
+extension	supabase_vault	vault
+extension	uuid-ossp	extensions
+funcion	private.claim_deliveries(p_limite integer, p_lease interval)	4072d21ae32852ba32f4f8946d006f31
+funcion	public.handle_new_user()	0406490325cb872745b6d7281320474f
+funcion	public.rls_auto_enable()	6998ea6b4c2480f5d2e34b5dcf3f8d36
+indice	public.alert_locations.alert_locations_pkey	CREATE UNIQUE INDEX alert_locations_pkey ON public.alert_locations USING btree (id)
+indice	public.alert_locations.ix_alert_locations_alert_id	CREATE INDEX ix_alert_locations_alert_id ON public.alert_locations USING btree (alert_id)
+indice	public.alerts.alerts_pkey	CREATE UNIQUE INDEX alerts_pkey ON public.alerts USING btree (id)
+indice	public.alerts.ix_alerts_user_id_client_generated_id	CREATE UNIQUE INDEX ix_alerts_user_id_client_generated_id ON public.alerts USING btree (user_id, client_generated_id)
+indice	public.cais.cais_pkey	CREATE UNIQUE INDEX cais_pkey ON public.cais USING btree (id)
+indice	public.emergency_contacts.emergency_contacts_pkey	CREATE UNIQUE INDEX emergency_contacts_pkey ON public.emergency_contacts USING btree (id)
+indice	public.emergency_contacts.ix_emergency_contacts_user_id	CREATE INDEX ix_emergency_contacts_user_id ON public.emergency_contacts USING btree (user_id)
+indice	public.notification_deliveries.ix_notification_deliveries_alert_id	CREATE INDEX ix_notification_deliveries_alert_id ON public.notification_deliveries USING btree (alert_id)
+indice	public.notification_deliveries.ix_notification_deliveries_contact_id	CREATE INDEX ix_notification_deliveries_contact_id ON public.notification_deliveries USING btree (contact_id)
+indice	public.notification_deliveries.ix_notification_deliveries_pendientes	CREATE INDEX ix_notification_deliveries_pendientes ON public.notification_deliveries USING btree (proximo_intento_en) WHERE (estado = ANY (ARRAY['en_cola'::text, 'reintento'::text, 'enviando'::text]))
+indice	public.notification_deliveries.notification_deliveries_pkey	CREATE UNIQUE INDEX notification_deliveries_pkey ON public.notification_deliveries USING btree (id)
+indice	public.notification_deliveries.notification_deliveries_proveedor_sid_key	CREATE UNIQUE INDEX notification_deliveries_proveedor_sid_key ON public.notification_deliveries USING btree (proveedor_sid)
+indice	public.notification_deliveries.notification_deliveries_unica_por_contacto	CREATE UNIQUE INDEX notification_deliveries_unica_por_contacto ON public.notification_deliveries USING btree (alert_id, contact_id, canal, tipo)
+indice	public.officer_decisions.ix_officer_decisions_alert_id	CREATE INDEX ix_officer_decisions_alert_id ON public.officer_decisions USING btree (alert_id)
+indice	public.officer_decisions.ix_officer_decisions_officer_id	CREATE INDEX ix_officer_decisions_officer_id ON public.officer_decisions USING btree (officer_id)
+indice	public.officer_decisions.officer_decisions_pkey	CREATE UNIQUE INDEX officer_decisions_pkey ON public.officer_decisions USING btree (id)
+indice	public.officer_duty_log.ix_officer_duty_log_cai_id	CREATE INDEX ix_officer_duty_log_cai_id ON public.officer_duty_log USING btree (cai_id)
+indice	public.officer_duty_log.ix_officer_duty_log_officer_id	CREATE INDEX ix_officer_duty_log_officer_id ON public.officer_duty_log USING btree (officer_id)
+indice	public.officer_duty_log.officer_duty_log_pkey	CREATE UNIQUE INDEX officer_duty_log_pkey ON public.officer_duty_log USING btree (id)
+indice	public.officers.ix_officers_cai_id	CREATE INDEX ix_officers_cai_id ON public.officers USING btree (cai_id)
+indice	public.officers.officers_pkey	CREATE UNIQUE INDEX officers_pkey ON public.officers USING btree (id)
+indice	public.profiles.profiles_pkey	CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)
+indice	public.tracking_links.tracking_links_alert_id_key	CREATE UNIQUE INDEX tracking_links_alert_id_key ON public.tracking_links USING btree (alert_id)
+indice	public.tracking_links.tracking_links_pkey	CREATE UNIQUE INDEX tracking_links_pkey ON public.tracking_links USING btree (id)
+indice	public.tracking_links.tracking_links_token_hash_key	CREATE UNIQUE INDEX tracking_links_token_hash_key ON public.tracking_links USING btree (token_hash)
+indice	public.verification_logs.ix_verification_logs_alert_id	CREATE INDEX ix_verification_logs_alert_id ON public.verification_logs USING btree (alert_id)
+indice	public.verification_logs.verification_logs_pkey	CREATE UNIQUE INDEX verification_logs_pkey ON public.verification_logs USING btree (id)
+policy	public.alert_locations.alert_locations_insert_own	INSERT roles=public using= check=(EXISTS ( SELECT 1 FROM alerts WHERE ((alerts.id = alert_locations.alert_id) AND (alerts.user_id = auth.uid()))))
+policy	public.alert_locations.alert_locations_select_own	SELECT roles=public using=(EXISTS ( SELECT 1 FROM alerts WHERE ((alerts.id = alert_locations.alert_id) AND (alerts.user_id = auth.uid())))) check=
+policy	public.alerts.alerts_insert_own	INSERT roles=public using= check=(( SELECT auth.uid() AS uid) = user_id)
+policy	public.alerts.alerts_select_own	SELECT roles=public using=(( SELECT auth.uid() AS uid) = user_id) check=
+policy	public.emergency_contacts.emergency_contacts_delete_own	DELETE roles=public using=(auth.uid() = user_id) check=
+policy	public.emergency_contacts.emergency_contacts_insert_own	INSERT roles=public using= check=(auth.uid() = user_id)
+policy	public.emergency_contacts.emergency_contacts_select_own	SELECT roles=public using=(auth.uid() = user_id) check=
+policy	public.emergency_contacts.emergency_contacts_update_own	UPDATE roles=public using=(auth.uid() = user_id) check=
+policy	public.profiles.profiles_insert_own	INSERT roles=public using= check=(auth.uid() = id)
+policy	public.profiles.profiles_select_own	SELECT roles=public using=(auth.uid() = id) check=
+policy	public.profiles.profiles_update_own	UPDATE roles=public using=(auth.uid() = id) check=
+policy	public.profiles.usuarios pueden actualizar su propio perfil	UPDATE roles=public using=(auth.uid() = id) check=
+policy	public.profiles.usuarios pueden crear su propio perfil	INSERT roles=public using= check=(auth.uid() = id)
+policy	public.profiles.usuarios pueden ver su propio perfil	SELECT roles=public using=(auth.uid() = id) check=
+restriccion	public.alert_locations.alert_locations_alert_id_fkey	FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
+restriccion	public.alert_locations.alert_locations_fuente_check	CHECK ((fuente = ANY (ARRAY['gps'::text, 'celular'::text, 'cache'::text])))
+restriccion	public.alert_locations.alert_locations_pkey	PRIMARY KEY (id)
+restriccion	public.alerts.alerts_canal_activacion_check	CHECK ((canal_activacion = ANY (ARRAY['boton_pulsado'::text, 'voz'::text, 'boton_fisico'::text])))
+restriccion	public.alerts.alerts_estado_check	CHECK ((estado = ANY (ARRAY['pendiente'::text, 'activa'::text, 'verificando'::text, 'escalada'::text, 'atendida'::text, 'descartada'::text, 'finalizada'::text])))
+restriccion	public.alerts.alerts_nivel_prioridad_ia_check	CHECK ((nivel_prioridad_ia = ANY (ARRAY['critico'::text, 'medio'::text, 'posible_falso_positivo'::text])))
+restriccion	public.alerts.alerts_pkey	PRIMARY KEY (id)
+restriccion	public.alerts.alerts_ubicacion_fuente_check	CHECK ((ubicacion_fuente = ANY (ARRAY['gps'::text, 'celular'::text, 'cache'::text])))
+restriccion	public.alerts.alerts_user_id_fkey	FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+restriccion	public.cais.cais_pkey	PRIMARY KEY (id)
+restriccion	public.emergency_contacts.emergency_contacts_pkey	PRIMARY KEY (id)
+restriccion	public.emergency_contacts.emergency_contacts_user_id_fkey	FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+restriccion	public.notification_deliveries.notification_deliveries_alert_id_fkey	FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
+restriccion	public.notification_deliveries.notification_deliveries_canal_check	CHECK ((canal = 'sms'::text))
+restriccion	public.notification_deliveries.notification_deliveries_contact_id_fkey	FOREIGN KEY (contact_id) REFERENCES emergency_contacts(id) ON DELETE SET NULL
+restriccion	public.notification_deliveries.notification_deliveries_estado_check	CHECK ((estado = ANY (ARRAY['en_cola'::text, 'enviando'::text, 'enviado'::text, 'entregado'::text, 'fallido'::text, 'reintento'::text, 'cancelado'::text])))
+restriccion	public.notification_deliveries.notification_deliveries_pkey	PRIMARY KEY (id)
+restriccion	public.notification_deliveries.notification_deliveries_proveedor_sid_key	UNIQUE (proveedor_sid)
+restriccion	public.notification_deliveries.notification_deliveries_tipo_check	CHECK ((tipo = ANY (ARRAY['alerta'::text, 'a_salvo'::text])))
+restriccion	public.notification_deliveries.notification_deliveries_unica_por_contacto	UNIQUE (alert_id, contact_id, canal, tipo)
+restriccion	public.officer_decisions.officer_decisions_alert_id_fkey	FOREIGN KEY (alert_id) REFERENCES alerts(id)
+restriccion	public.officer_decisions.officer_decisions_decision_check	CHECK ((decision = ANY (ARRAY['critico'::text, 'medio'::text, 'posible_falso_positivo'::text, 'descartado'::text])))
+restriccion	public.officer_decisions.officer_decisions_officer_id_fkey	FOREIGN KEY (officer_id) REFERENCES officers(id) ON UPDATE CASCADE
+restriccion	public.officer_decisions.officer_decisions_pkey	PRIMARY KEY (id)
+restriccion	public.officer_duty_log.officer_duty_log_cai_id_fkey	FOREIGN KEY (cai_id) REFERENCES cais(id)
+restriccion	public.officer_duty_log.officer_duty_log_officer_id_fkey	FOREIGN KEY (officer_id) REFERENCES officers(id)
+restriccion	public.officer_duty_log.officer_duty_log_pkey	PRIMARY KEY (id)
+restriccion	public.officer_duty_log.officer_duty_log_tipo_evento_check	CHECK ((tipo_evento = ANY (ARRAY['entrada'::text, 'salida'::text])))
+restriccion	public.officers.officers_cai_id_fkey	FOREIGN KEY (cai_id) REFERENCES cais(id)
+restriccion	public.officers.officers_id_fkey	FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
+restriccion	public.officers.officers_pkey	PRIMARY KEY (id)
+restriccion	public.officers.officers_rol_check	CHECK ((rol = ANY (ARRAY['oficial'::text, 'supervisor'::text, 'control_interno'::text])))
+restriccion	public.profiles.profiles_id_fkey	FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
+restriccion	public.profiles.profiles_pkey	PRIMARY KEY (id)
+restriccion	public.tracking_links.tracking_links_alert_id_fkey	FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
+restriccion	public.tracking_links.tracking_links_alert_id_key	UNIQUE (alert_id)
+restriccion	public.tracking_links.tracking_links_pkey	PRIMARY KEY (id)
+restriccion	public.tracking_links.tracking_links_token_hash_key	UNIQUE (token_hash)
+restriccion	public.verification_logs.verification_logs_alert_id_fkey	FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
+restriccion	public.verification_logs.verification_logs_nivel_asignado_check	CHECK ((nivel_asignado = ANY (ARRAY['critico'::text, 'medio'::text, 'posible_falso_positivo'::text])))
+restriccion	public.verification_logs.verification_logs_pkey	PRIMARY KEY (id)
+tabla	public.alert_locations	rls=true
+tabla	public.alerts	rls=true
+tabla	public.cais	rls=true
+tabla	public.emergency_contacts	rls=true
+tabla	public.notification_deliveries	rls=true
+tabla	public.officer_decisions	rls=true
+tabla	public.officer_duty_log	rls=true
+tabla	public.officers	rls=true
+tabla	public.profiles	rls=true
+tabla	public.tracking_links	rls=true
+tabla	public.verification_logs	rls=true
+trigger	auth.users.on_auth_user_created	CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user()

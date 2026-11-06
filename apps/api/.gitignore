@@ -1,0 +1,22 @@
+# Build results
+bin/
+obj/
+*.user
+
+# Configuración con secretos: nunca versionar
+appsettings.json
+appsettings.*.json
+!appsettings.Example.json
+
+# .NET
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS
+.vs/
+*.user
+
+# OS
+Thumbs.db
+.DS_Store

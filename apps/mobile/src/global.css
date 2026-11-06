@@ -1,0 +1,90 @@
+/* Solo web (en nativo Metro ignora los .css). Foco propio en rojo en lugar del recuadro del navegador. */
+input,
+textarea {
+  outline: none;
+}
+
+/* Botones y enlaces de react-native-web: anillo rojo solo al navegar con teclado. */
+[role='button'],
+[role='link'],
+[role='switch'],
+[tabindex] {
+  outline: none;
+}
+[role='button']:focus-visible,
+[role='link']:focus-visible,
+[role='switch']:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #e8212b;
+  outline-offset: 2px;
+}
+
+/* Pin del mapa web (LiveMap.web.tsx): punto rojo y pulso tipo radar. Maplibre mueve el contenedor con
+   transform, por eso la animación va en los anillos hijos. */
+.ay-pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e8212b;
+  border: 2px solid #ffffff;
+  box-sizing: border-box;
+  position: relative;
+}
+.ay-ring {
+  display: none;
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #e8212b;
+  background: rgba(232, 33, 43, 0.18);
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: ay-radar 2.4s ease-out infinite;
+}
+.ay-live .ay-ring {
+  display: block;
+}
+.ay-ring:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.ay-ring:nth-child(3) {
+  animation-delay: 1.6s;
+}
+@keyframes ay-radar {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(7);
+    opacity: 0;
+  }
+}
+.ay-start {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #0d0d0d;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ay-ring {
+    animation: none;
+    transform: scale(2.5);
+    opacity: 0.3;
+  }
+}
+
+/* Atribución de OpenFreeMap/OSM: obligatoria y visible, pero oscura y pequeña para no tapar el mapa. */
+.maplibregl-ctrl-attrib.maplibregl-ctrl {
+  background: rgba(13, 13, 13, 0.75);
+  color: #9a9a9a;
+  font-size: 10px;
+  line-height: 14px;
+}
+.maplibregl-ctrl-attrib a {
+  color: #9a9a9a;
+}

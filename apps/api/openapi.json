@@ -1,0 +1,940 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "AlertaYA.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/alerts": {
+      "post": {
+        "tags": [
+          "Alerts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateAlertRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateAlertRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateAlertRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlertResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlertResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlertResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/alerts/{id}/location": {
+      "post": {
+        "tags": [
+          "Alerts"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateAlertLocationRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateAlertLocationRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateAlertLocationRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/alerts/{id}/status": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/alerts/active": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertStatusResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/emergency-contacts": {
+      "get": {
+        "tags": [
+          "EmergencyContacts"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmergencyContactDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmergencyContactDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmergencyContactDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "EmergencyContacts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateEmergencyContactRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateEmergencyContactRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateEmergencyContactRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/emergency-contacts/{id}": {
+      "put": {
+        "tags": [
+          "EmergencyContacts"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateEmergencyContactRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateEmergencyContactRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateEmergencyContactRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "EmergencyContacts"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/profiles/me": {
+      "get": {
+        "tags": [
+          "Profiles"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Profiles"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProfileRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProfileRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProfileRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertResponse": {
+        "required": [
+          "canalActivacion",
+          "estado",
+          "id",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "canalActivacion": {
+            "type": "string"
+          },
+          "nivelPrioridadIa": {
+            "type": "string",
+            "nullable": true
+          },
+          "ubicacion": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UbicacionDto"
+              }
+            ],
+            "nullable": true
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "actualizadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "clientGeneratedId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AlertStatusResponse": {
+        "required": [
+          "canalActivacion",
+          "contactos",
+          "estado",
+          "id",
+          "serverNow",
+          "trackingUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "canalActivacion": {
+            "type": "string"
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finalizadaEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trackingUrl": {
+            "type": "string"
+          },
+          "ultimaUbicacion": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UbicacionConfirmadaDto"
+              }
+            ],
+            "nullable": true
+          },
+          "contactos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntregaContactoDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateAlertRequest": {
+        "required": [
+          "canalActivacion"
+        ],
+        "type": "object",
+        "properties": {
+          "canalActivacion": {
+            "type": "string"
+          },
+          "clientGeneratedId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "ubicacionInicial": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ],
+            "nullable": true
+          },
+          "precisionMetros": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fuente": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateEmergencyContactRequest": {
+        "required": [
+          "nombre",
+          "telefono"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string"
+          },
+          "telefono": {
+            "type": "string"
+          },
+          "relacion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmergencyContactDto": {
+        "required": [
+          "id",
+          "nombre",
+          "telefono"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "telefono": {
+            "type": "string"
+          },
+          "relacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntregaContactoDto": {
+        "required": [
+          "estado",
+          "intentos",
+          "nombre",
+          "telefono"
+        ],
+        "type": "object",
+        "properties": {
+          "contactId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "telefono": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "intentos": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GeoPointDto": {
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lon": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfileDto": {
+        "required": [
+          "id",
+          "modoSilencioso",
+          "nombre",
+          "telefono",
+          "ventanaConfirmacionSegundos"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "telefono": {
+            "type": "string"
+          },
+          "correo": {
+            "type": "string",
+            "nullable": true
+          },
+          "palabraClave": {
+            "type": "string",
+            "nullable": true
+          },
+          "ventanaConfirmacionSegundos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modoSilencioso": {
+            "type": "boolean"
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UbicacionConfirmadaDto": {
+        "required": [
+          "capturadaEn",
+          "lat",
+          "lon"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lon": {
+            "type": "number",
+            "format": "double"
+          },
+          "precisionMetros": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "capturadaEn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UbicacionDto": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "lon": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "precisionMetros": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fuente": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAlertLocationRequest": {
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lon": {
+            "type": "number",
+            "format": "double"
+          },
+          "precisionMetros": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fuente": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateEmergencyContactRequest": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefono": {
+            "type": "string",
+            "nullable": true
+          },
+          "relacion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefono": {
+            "type": "string",
+            "nullable": true
+          },
+          "palabraClave": {
+            "type": "string",
+            "nullable": true
+          },
+          "ventanaConfirmacionSegundos": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modoSilencioso": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

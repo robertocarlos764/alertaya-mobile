@@ -1,0 +1,279 @@
+/* Tokens de 01-UI-SPEC (Color, Spacing Scale, Typography). Unica fuente de colores de la pagina. */
+:root {
+  --bg: #0d0d0d;
+  --surface: #1a1a1a;
+  --border: #2a2a2a;
+  --accent: #e8212b;
+  --text: #ffffff;
+  --text-2: #9a9a9a;
+  --hint: #5a5a5a;
+  --success: #4ade80;
+  --warning: #f5a524;
+
+  --xs: 4px;
+  --sm: 8px;
+  --md: 16px;
+  --lg: 24px;
+  --xl: 32px;
+
+  --radius-btn: 10px;
+  --radius-lg: 16px;
+
+  --fs-label: 12px;
+  --fs-body: 16px;
+  --fs-heading: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* Mobile-first a 360 px, maximo 480 px centrado. */
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-strip {
+  background: var(--warning);
+  color: #0d0d0d;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: var(--xs) var(--md);
+}
+
+.topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sm);
+  padding: 0 var(--md);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sm);
+  font-weight: 600;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--xs);
+  padding: var(--xs) var(--sm);
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.pill-red { color: var(--accent); }
+.pill-amber { color: var(--warning); }
+.pill-green { color: var(--success); }
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+.dot-pulse { animation: pulse 1.2s ease-in-out infinite; }
+
+.offline-bar {
+  background: var(--warning);
+  color: #0d0d0d;
+  font-weight: 600;
+  padding: var(--sm) var(--md);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.banner {
+  background: var(--surface);
+  padding: var(--md);
+}
+.banner-green { color: var(--success); }
+
+.map-area {
+  position: relative;
+  flex: 1;
+  min-height: 320px;
+  background: var(--surface);
+}
+
+.map-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sm);
+  padding: var(--lg);
+  text-align: center;
+  color: var(--text-2);
+}
+.map-loading { animation: pulse 1.6s ease-in-out infinite; }
+.map-pending { color: var(--warning); }
+
+.map-area .map-canvas {
+  /* Mas especifico que .maplibregl-map { position: relative } del CSS de maplibre. */
+  position: absolute;
+  inset: 0;
+}
+
+.center-btn {
+  position: absolute;
+  right: var(--md);
+  bottom: var(--xl);
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 var(--md);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sheet {
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm);
+}
+
+.heading {
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.muted { color: var(--text-2); }
+.warn { color: var(--warning); }
+.meta { font-size: var(--fs-label); color: var(--text-2); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm);
+  padding-top: var(--md);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sm);
+  min-height: 56px;
+  width: 100%;
+  padding: var(--sm) var(--md);
+  border-radius: var(--radius-btn);
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn svg { flex-shrink: 0; }
+.btn-primary {
+  background: var(--accent);
+  color: var(--text);
+  border: 0;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+.btn[aria-disabled="true"] {
+  color: var(--hint);
+  cursor: not-allowed;
+}
+
+.footer {
+  padding: var(--lg);
+  font-size: var(--fs-label);
+  color: var(--text-2);
+}
+
+.centered {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md);
+  padding: var(--lg);
+  text-align: center;
+}
+.centered .actions { width: 100%; }
+
+/* Pin del mapa: 16 px rojo con anillo pulsante. */
+.pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 2px solid var(--text);
+  position: relative;
+}
+.pin-live::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  animation: ring 1.6s ease-out infinite;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.4; }
+}
+@keyframes ring {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-pulse,
+  .map-loading,
+  .pin-live::after {
+    animation: none;
+  }
+}

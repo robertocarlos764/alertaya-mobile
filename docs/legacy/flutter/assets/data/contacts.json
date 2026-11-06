@@ -1,0 +1,31 @@
+[
+  {
+    "id": "1",
+    "name": "Maria Jimenez",
+    "initials": "MJ",
+    "phoneNumber": "+57 312 445 6789",
+    "colorHex": "#E8212B"
+  },
+  {
+    "id": "2",
+    "name": "Ricardo Castro",
+    "initials": "RC",
+    "phoneNumber": "+57 300 123 4455",
+    "colorHex": "#21E8D2"
+  },
+  {
+    "id": "3",
+    "name": "Elena Sofia",
+    "initials": "ES",
+    "phoneNumber": "+57 315 998 2211",
+    "colorHex": "#FFB86C",
+    "avatarUrl": "https://i.pravatar.cc/150?img=5"
+  },
+  {
+    "id": "4",
+    "name": "Andrés Arango",
+    "initials": "AA",
+    "phoneNumber": "+57 310 887 6655",
+    "colorHex": "#E8212B"
+  }
+]
